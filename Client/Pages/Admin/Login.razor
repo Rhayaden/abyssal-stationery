@@ -1,0 +1,114 @@
+﻿@page "/admin/login"
+@layout EmptyLayout
+@inject IToastService toastService
+
+<div class="w-full flex justify-center items-center">
+	<div class="w-full flex justify-center bg-transparent">
+		<div class="flex flex-col justify-center items-center mt-20">
+			<h3 class="font-bold text-2xl" style="font-family:Pacifico">Abyss</h3>
+			<EditForm Model=@request OnValidSubmit="SubmitHandler" class="bg-transparent rounded px-8 pt-6 pb-8 mb-4 mx-10 w-full">
+				<DataAnnotationsValidator />
+				<div class="mb-4">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+						Email Address
+					</label>
+					<input @bind="@request.Email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="name@example.com">
+				</div>
+				<div class="mb-6">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+						Password
+					</label>
+					<input @bind="@request.Password" class="shadow appearance-none border border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="********">
+				</div>
+				<div class="flex items-center justify-between">
+					<button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+						Sign In
+					</button>
+				</div>
+			</EditForm>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Inject]
+	HttpClient Client { get; set; }
+
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+
+	[Inject]
+	ILocalStorageService localStorageService { get; set; }
+
+	[Inject]
+	AuthenticationStateProvider authStateProvider { get; set; }
+
+	[Inject]
+	AppStateManager appStateManager { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; }
+
+	private LoginRequestDTO request = new();
+
+	protected async override Task OnInitializedAsync()
+	{
+		var authState = await AuthState;
+		var isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+		if (authState.User.Identity.IsAuthenticated && isAdmin == "true")
+		{
+			var emailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+			var trimmedEmail = emailInClaims.Trim('"');
+			var data = await Client.GetServiceResponseAsync<bool>($"api/Admin/Check/{trimmedEmail}");
+			if (data == true)
+			{
+				navigationManager.NavigateTo("/admin/dashboard");
+			}
+			else
+			{
+				navigationManager.NavigateTo("/");
+			}
+		}
+	}
+
+	protected async Task SubmitHandler()
+	{
+		var responseMessage = await Client.PostAsJsonAsync("api/Admin/Login", request);
+
+		if (responseMessage.IsSuccessStatusCode)
+		{
+			var response = await responseMessage.Content.ReadFromJsonAsync<ServiceResponse<AdminLoginResponseDTO>>();
+			if (response.IsSuccess)
+			{
+				if (response.Data == null)
+				{
+					toastService.ShowError("Wrong password");
+					return;
+				}
+				await localStorageService.SetItemAsync("token", response.Data.Token);
+
+				var id = response.Data.Admin?.Id;
+				var email = response.Data.Admin?.Email;
+				var name = response.Data.Admin?.Name;
+				bool isUser = false;
+				bool isAdmin = true;
+
+				await localStorageService.SetItemAsync("id", id);
+				await localStorageService.SetItemAsync("email", email);
+				await localStorageService.SetItemAsync("name", name);
+				await localStorageService.SetItemAsync("isUser", isUser);
+				await localStorageService.SetItemAsync("isAdmin", isAdmin);
+
+				(authStateProvider as AuthStateProvider).NotifyLogin(email);
+
+				Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", response.Data.Token);
+				toastService.ShowSuccess("Successfully Logged In");
+				navigationManager.NavigateTo("/admin/dashboard");
+			}
+		}
+		else
+		{
+			navigationManager.NavigateTo("/admin/login");
+		}
+	}
+}

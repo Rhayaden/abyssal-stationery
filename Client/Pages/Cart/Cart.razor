@@ -1,0 +1,212 @@
+﻿@page "/cart"
+@inject IToastService toastService
+
+@if(cart?.Products?.Count > 0)
+{
+    <div class="w-full max-w-7xl px-4 md:px-5 lg-6 mx-auto relative z-10">
+        <div class="grid grid-cols-12">
+            <div class="col-span-12 xl:col-span-8 lg:pr-8 pt-14 pb-8 lg:py-24 w-full max-xl:max-w-3xl max-xl:mx-auto">
+                <div class="flex items-center justify-between pb-8 border-b border-gray-300">
+                    <h2 class="font-manrope font-bold text-3xl leading-10 text-black">Shopping Cart</h2>
+                    <h2 class="font-manrope font-bold text-xl leading-8 text-gray-600">@cart.Quantity Items</h2>
+                </div>
+                <div class="grid grid-cols-12 mt-8 max-md:hidden pb-6 border-b border-gray-200">
+                    <div class="col-span-12 md:col-span-7">
+                        <p class="font-normal text-lg leading-8 text-gray-400">Product Details</p>
+                    </div>
+                    <div class="col-span-12 md:col-span-5">
+                        <div class="grid grid-cols-5">
+                            <div class="col-span-3">
+                                <p class="font-normal text-lg leading-8 text-gray-400 text-center">Quantity</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="font-normal text-lg leading-8 text-gray-400 text-right">Total</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @foreach(var product in cart.Products)
+                {
+                    <div class="flex flex-col min-[500px]:flex-row min-[500px]:items-center gap-5 py-6  border-b border-gray-200 group">
+                        <div class="w-full md:max-w-[126px]">
+                            <img src="@product.Image" alt="@product.ProductTitle"
+                                 class="mx-auto">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 w-full">
+                            <div class="md:col-span-2">
+                                <div class="flex flex-col max-[500px]:items-center gap-3">
+                                    <h6 class="font-semibold text-base leading-7 text-black">@product.ProductTitle</h6>
+                                    <h6 class="font-normal text-base leading-7 text-gray-500">@product.Category</h6>
+                                    <h6 class="font-medium text-base leading-7 text-gray-600 hover:text-indigo-600">$ @product.Price</h6>
+                                </div>
+                            </div>
+                            <div class="flex items-center max-[500px]:justify-center h-full max-md:mt-3">
+                                <div class="flex items-center h-full w-full">
+                                    <h6 class="text-gray-900 font-semibold text-lg w-full text-center">@product.Quantity</h6>
+                                </div>
+                            </div>
+                            <div class="flex items-center max-[500px]:justify-center md:justify-end max-md:mt-3 h-full">
+                                <p class="font-bold text-lg leading-8 text-gray-600 text-center hover:text-indigo-600">$ @(product.Price * product.Quantity)</p>
+                            </div>
+                            <div class="flex items-center max-[500px]:justify-center md:justify-end max-md:mt-3 h-full">
+                                <button @onclick="()=>RemoveFromCartHandler(product.ProductId)" class="font-medium text-indigo-600 hover:text-indigo-500">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="flex items-center justify-between mt-8">
+                    <a href="/products" class="text-indigo-600 hover:text-indigo-500 font-semibold">&#8592; Continue Shopping</a>
+                    <button @onclick="ClearHandler" class="flex items-center px-5 py-3 rounded-full gap-2 border-none outline-0 group font-semibold text-lg leading-8 text-indigo-600 shadow-sm shadow-transparent transition-all duration-500 hover:text-indigo-700">
+                        Clear Cart
+                    </button>
+                </div>
+            </div>
+            <div class="w-full flex flex-col items-center col-span-12 xl:col-span-4 bg-gray-50 w-full max-xl:px-6 max-w-3xl xl:max-w-lg mx-auto py-24">
+                <h2 class="font-manrope font-bold text-3xl leading-10 text-black pb-8 border-b border-gray-300">
+                    Order Summary
+                </h2>
+                <div class="mt-8 w-full flex flex-col items-center">
+                        <div class="flex items-center py-8">
+                            <p class="font-semibold text-xl leading-8 text-indigo-600">Total: $ @cart.Total</p>
+                        </div>
+                        <button @onclick="OrderHandler" class="w-80 text-center bg-indigo-600 rounded-xl py-3 px-6 font-semibold text-lg text-white transition-all duration-500 hover:bg-indigo-700">
+                            Checkout
+                        </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-center font-bold text-xl h-screen">Cart is empty</p>
+}
+
+@code {
+    [Inject]
+    public HttpClient Client { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    [Inject]
+    ILocalStorageService localStorageService { get; set; }
+
+    [Inject]
+    AppStateManager appStateManager { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    protected CartDTO cart { get; set; }
+
+    [Parameter]
+    public string userId { get; set; }
+
+    private string userEmailInLocalStorage { get; set; }
+    private string userEmailInClaims { get; set; }
+    private string trimmedUserId { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            appStateManager.OnQuantityChanged += async component => await AppStateChanged(component);
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            userEmailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            userEmailInLocalStorage = await localStorageService.GetItemAsStringAsync("email");
+        }
+        else
+        {
+            navigationManager.NavigateTo("/");
+            return;
+        }
+        userId = await localStorageService.GetItemAsStringAsync("id");
+        trimmedUserId = userId.Trim('"');
+        cart = await Client.GetServiceResponseAsync<CartDTO>($"api/Cart/Get/{trimmedUserId}");
+    }
+
+    protected async Task RemoveFromCartHandler(Guid id)
+    {
+        if (AuthorizationChecker.IsAuthorizedToMakeChangesInCart(userEmailInLocalStorage, userEmailInClaims) == false)
+        {
+            toastService.ShowWarning("Not Authorized");
+            return;
+        }
+        userId = await localStorageService.GetItemAsStringAsync("id");
+        trimmedUserId = userId.Trim('"');
+        var selectedProduct = cart.Products.First(p => p.ProductId == id);
+        var data = await Client.PostServiceResponseAsync<CartDTO, ProductInCartDTO>($"api/Cart/Remove/{trimmedUserId}/1", selectedProduct);
+
+        if (data != null)
+        {
+            appStateManager.UpdateCartQuantity(this);
+            appStateManager.UpdateCart(this);
+            toastService.ShowInfo("Removed from Cart");
+            navigationManager.NavigateTo("/cart");
+        }
+    }
+
+    protected async Task OrderHandler()
+    {
+        if (AuthorizationChecker.IsAuthorizedToOrder(userId, cart.UserId) == false)
+        {
+            toastService.ShowWarning("Not Authorized");
+            return;
+        }
+        userId = await localStorageService.GetItemAsStringAsync("id");
+        trimmedUserId = userId.Trim('"');
+        var data = await Client.PostServiceResponseAsync<OrderDTO, CartDTO>($"api/Order/Checkout", cart);
+        if (data != null)
+        {
+            foreach (var cartProduct in cart.Products)
+            {
+                var productInDb = await Client.GetServiceResponseAsync<ProductDTO>($"api/Product/Get/{cartProduct.ProductId}");
+                if (productInDb.Stock < cartProduct.Quantity)
+                {
+                    toastService.ShowError("The product in your cart is out of stock");
+                    return;
+                }
+                productInDb.Stock = productInDb.Stock - cartProduct.Quantity;
+                await Client.PostServiceResponseAsync<ProductDTO, ProductDTO>("api/Product/Update", productInDb);
+            }
+            await Client.PostAsync($"api/Cart/Clear/{trimmedUserId}", null);
+            appStateManager.UpdateCartQuantity(this);
+            appStateManager.UpdateCart(this);
+            toastService.ShowSuccess("Successfully ordered!");
+            navigationManager.NavigateTo($"/orders");
+        }
+        else
+        {
+            toastService.ShowError("The product in your cart is out of stock");
+        }
+    }
+
+    protected async Task ClearHandler()
+    {
+        await Client.PostAsync($"api/Cart/Clear/{trimmedUserId}", null);
+        appStateManager.UpdateCartQuantity(this);
+        appStateManager.UpdateCart(this);
+        toastService.ShowSuccess("Cart cleared!");
+        navigationManager.NavigateTo("/cart");
+    }
+
+    private async Task AppStateChanged(ComponentBase component)
+    {
+        var authState = await AuthState;
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            var updatedCart = await Client.GetServiceResponseAsync<CartDTO>($"api/Cart/Get/{trimmedUserId}");
+            cart = updatedCart;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+}

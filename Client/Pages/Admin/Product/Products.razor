@@ -1,0 +1,164 @@
+﻿@page "/admin/products/page/{Page:int}"
+@layout AdminLayout
+@inject IToastService toastService
+
+<div class="flex justify-start items-center w-full">
+	<a class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" href="/admin/products/add">Add Product</a>
+</div>
+
+@if (productList.Count() > 0)
+{
+	<div class="w-full px-4 mx-auto mt-4">
+		<div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
+			<div class="rounded-t mb-0 px-4 py-3 border-0">
+				<div class="flex flex-wrap items-center">
+					<div class="relative w-full px-4 max-w-full flex-grow flex-1">
+						<h3 class="font-bold text-center text-indigo-600">Products</h3>
+					</div>
+				</div>
+			</div>
+			<div class="block w-full overflow-x-auto">
+				<table class="items-center bg-transparent w-full border-collapse ">
+					<thead>
+						<tr>
+							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								Id
+							</th>
+							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								Title
+							</th>
+							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								Category
+							</th>
+							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								Price
+							</th>
+							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								Stock
+							</th>
+							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								
+							</th>
+							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								
+							</th>
+							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+								
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var product in productList)
+						{
+							<tr>
+								<th class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-left text-indigo-600 ">
+									@product.Id
+								</th>
+								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
+									@product.Title
+								</td>
+								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
+									@product.Category.Name
+								</td>
+								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
+									$@product.Price
+								</td>
+								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
+									@product.Stock
+								</td>
+								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+									<a href="/admin/products/edit/@product.Id" class="bg-transparent hover:bg-indigo-500 text-indigo-600 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded">Edit</a>
+								</td>
+								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+									<button @onclick="()=>ClickHandler(product.Id)" class="bg-transparent hover:bg-indigo-500 text-indigo-600 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded">Delete</button>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<Paginator ObjectCount="productCount" ObjectName="admin/products" CurrentPage="Page" Size="ItemsPerPage.Product" />
+}
+else
+{
+	<p class="text-center font-bold text-xl h-screen">No product added</p>
+}
+
+@code {
+	[Inject]
+	HttpClient Client { get; set; }
+
+	[Inject]
+	ILocalStorageService localStorageService { get; set; }
+
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+
+	[Inject]
+	AppStateManager appStateManager { get; set; }
+
+	[Inject]
+	IModalService Modal { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; }
+
+	[Parameter]
+	public int Page { get; set; } = 1;
+
+	private IEnumerable<ProductDTO> productList = new List<ProductDTO>();
+
+	private int productCount { get; set; }
+
+	private bool? isAdmin { get; set; }
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		if (firstRender)
+		{
+			appStateManager.OnProductsChanged += async component => await AppStateChanged(component);
+			appStateManager.OnPageChanged += async component => await AppStateChanged(component);
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthState;
+		var isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+		if (authState.User.Identity.IsAuthenticated && isAdmin == "true")
+		{
+			var emailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+			var trimmedEmail = emailInClaims.Trim('"');
+			var data = await Client.GetServiceResponseAsync<bool>($"api/Admin/Check/{trimmedEmail}");
+			if (data == true)
+			{
+				productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+				productCount = await Client.GetServiceResponseAsync<int>($"api/Product/Count");
+			}
+			else
+			{
+				navigationManager.NavigateTo("/");
+			}
+		}
+		else
+		{
+			navigationManager.NavigateTo("/");
+		}
+	}
+
+	private void ClickHandler(Guid objectId)
+	{
+		ModalParameters parameters = new ModalParameters();
+		parameters.Add("Object", "Product");
+		parameters.Add("ObjectId", objectId);
+		Modal.Show<Modal>("", parameters);
+	}
+
+	private async Task AppStateChanged(ComponentBase component)
+	{
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+		await InvokeAsync(StateHasChanged);
+	}
+}

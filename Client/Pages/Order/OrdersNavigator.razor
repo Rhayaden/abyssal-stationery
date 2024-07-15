@@ -1,0 +1,10 @@
+﻿@page "/orders"
+
+@code {
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+	protected override void OnInitialized()
+	{
+		navigationManager.NavigateTo("/orders/page/1");
+	}
+}

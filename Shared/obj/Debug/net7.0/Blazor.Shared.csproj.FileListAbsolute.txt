@@ -1,0 +1,11 @@
+C:\Users\pc\source\repos\Blazor\Shared\bin\Debug\net7.0\Blazor.Shared.deps.json
+C:\Users\pc\source\repos\Blazor\Shared\bin\Debug\net7.0\Blazor.Shared.dll
+C:\Users\pc\source\repos\Blazor\Shared\bin\Debug\net7.0\Blazor.Shared.pdb
+C:\Users\pc\source\repos\Blazor\Shared\obj\Debug\net7.0\Blazor.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pc\source\repos\Blazor\Shared\obj\Debug\net7.0\Blazor.Shared.AssemblyInfoInputs.cache
+C:\Users\pc\source\repos\Blazor\Shared\obj\Debug\net7.0\Blazor.Shared.AssemblyInfo.cs
+C:\Users\pc\source\repos\Blazor\Shared\obj\Debug\net7.0\Blazor.Shared.csproj.CoreCompileInputs.cache
+C:\Users\pc\source\repos\Blazor\Shared\obj\Debug\net7.0\Blazor.Shared.dll
+C:\Users\pc\source\repos\Blazor\Shared\obj\Debug\net7.0\refint\Blazor.Shared.dll
+C:\Users\pc\source\repos\Blazor\Shared\obj\Debug\net7.0\Blazor.Shared.pdb
+C:\Users\pc\source\repos\Blazor\Shared\obj\Debug\net7.0\ref\Blazor.Shared.dll

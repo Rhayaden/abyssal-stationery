@@ -1,0 +1,116 @@
+﻿@page "/orders/page/{Page:int}"
+
+@if (orders.Count > 0)
+{
+    <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 mx-auto mt-20">
+        <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
+            <div class="rounded-t mb-0 px-4 py-3 border-0">
+                <div class="flex flex-wrap items-center">
+                    <div class="relative w-full px-4 max-w-full flex-grow flex-1">
+                        <h3 class="font-bold text-center text-indigo-600">Orders</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="block w-full overflow-x-auto">
+                <table class="items-center bg-transparent w-full border-collapse ">
+                    <thead>
+                        <tr>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Order ID
+                            </th>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Date
+                            </th>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Total
+                            </th>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(var order  in orders)
+                        {
+                            <tr>
+                                <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-left text-indigo-600 ">
+                                    @order.Id
+                                </th>
+                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
+                                    @order.CreateDate
+                                </td>
+                                <td class="border-t-0 px-6 align-center border-l-0 border-r-0 whitespace-nowrap p-4">
+                                    $ @order.Total
+                                </td>
+                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
+                                    <a href="/orders/@order.Id" class="bg-transparent hover:bg-indigo-500 text-indigo-600 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded">See Details</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <Paginator ObjectCount="orderCount" ObjectName="orders" CurrentPage="Page" Size="ItemsPerPage.Order" />
+}
+else
+{
+    <p class ="text-center font-bold text-xl h-screen">You do not have any orders</p>
+}
+
+@code {
+    [Inject]
+    public HttpClient Client { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    [Inject]
+    ILocalStorageService localStorageService { get; set; }
+
+    [Inject]
+    AppStateManager appStateManager { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    [Parameter]
+    public int Page { get; set; } = 1;
+
+    private int orderCount { get; set; }
+
+    private string? userId { get; set; }
+
+    protected List<OrderDTO> orders { get; set; } = new();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            appStateManager.OnPageChanged += async component => await PageStateChanged(component);
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+        var isUser = await localStorageService.GetItemAsStringAsync("isUser");
+        if (!authState.User.Identity.IsAuthenticated || isUser == "false")
+        {
+            navigationManager.NavigateTo("/");
+            return;
+        }
+        userId = await localStorageService.GetItemAsStringAsync("id");
+        var trimmedUserId = userId.Trim('"');
+        orders = await Client.GetServiceResponseAsync<List<OrderDTO>>($"api/Order/GetAll/{trimmedUserId}/Page/{Page}");
+        orderCount = await Client.GetServiceResponseAsync<int>($"api/Order/Count/{trimmedUserId}");
+    }
+
+    private async Task PageStateChanged(ComponentBase component)
+    {
+        var trimmedUserId = userId.Trim('"');
+        orders = await Client.GetServiceResponseAsync<List<OrderDTO>>($"api/Order/GetAll/{trimmedUserId}/Page/{Page}");
+        await InvokeAsync(StateHasChanged);
+    }
+}

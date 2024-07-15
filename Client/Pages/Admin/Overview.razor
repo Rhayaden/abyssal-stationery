@@ -1,0 +1,77 @@
+﻿@page "/admin/overview"
+@layout AdminLayout
+
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+	<div class="flex flex-col gap-10 xl:gap-14 lg:flex-row lg:justify-between">
+		<div class="w-full lg:w-1/3 ">
+			<div class="font-manrope font-bold text-5xl text-indigo-600 mb-6 text-center ">
+				@userCount
+			</div>
+			<p class="text-lg text-gray-500 leading-7 text-center">Number of user registered</p>
+		</div>
+		<div class="w-full lg:w-1/3 ">
+			<div class="font-manrope font-bold text-5xl text-indigo-600 mb-6 text-center ">
+				@categoryCount
+			</div>
+			<p class="text-lg text-gray-500 leading-7 text-center">Number of categories</p>
+		</div>
+		<div class="w-full lg:w-1/3 ">
+			<div class="font-manrope font-bold text-5xl text-indigo-600 mb-6 text-center ">
+				@productCount
+			</div>
+			<p class="text-lg text-gray-500 leading-7 text-center">Number of products</p>
+		</div>
+		<div class="w-full lg:w-1/3 ">
+			<div class="font-manrope font-bold text-5xl text-indigo-600 mb-6 text-center ">
+				@orderCount
+			</div>
+			<p class="text-lg text-gray-500 leading-7 text-center">Number of orders given</p>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Inject]
+	HttpClient Client { get; set; }
+
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+
+	[Inject]
+	ILocalStorageService localStorageService { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; }
+
+	private int userCount { get; set; }
+	private int categoryCount { get; set; }
+	private int productCount { get; set; }
+	private int orderCount { get; set; }
+
+	protected async override Task OnInitializedAsync()
+	{
+		var authState = await AuthState;
+		var isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+		if (authState.User.Identity.IsAuthenticated && isAdmin == "true")
+		{
+			var emailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+			var trimmedEmail = emailInClaims.Trim('"');
+			var data = await Client.GetServiceResponseAsync<bool>($"api/Admin/Check/{trimmedEmail}");
+			if (data == true)
+			{
+				userCount = await Client.GetServiceResponseAsync<int>("api/User/Count");
+				categoryCount = await Client.GetServiceResponseAsync<int>("api/Category/Count");
+				productCount = await Client.GetServiceResponseAsync<int>("api/Product/Count");
+				orderCount = await Client.GetServiceResponseAsync<int>("api/Order/Count");
+			}
+			else
+			{
+				navigationManager.NavigateTo("/");
+			}
+		}
+		else
+		{
+			navigationManager.NavigateTo("/");
+		}
+	}
+}

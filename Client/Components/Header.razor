@@ -1,0 +1,146 @@
+﻿@inject IJSRuntime JS;
+
+<header>
+    <nav class="relative container mx-auto p-6 bg-transparent">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-20">
+                <a href="/" class="text-2xl text-indigo-600 font-bold" style="font-family:Pacifico">Abyss</a>
+                <div class="hidden space-x-8 font-bold lg:flex">
+                    <a href="/products" class="text-indigo-600 hover:text-indigo-500">Products</a>
+                </div>
+            </div>
+            <button type="button" class="block lg:hidden focus:outline-none text-indigo-600" id="menu-btn">
+                <svg class="w-6 h-6" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z" /></svg>
+            </button>
+            <div id="menu" class="absolute hidden w-full py-6 bg-indigo-600 left-0 right-0 top-20 z-10">
+                <div class="flex flex-col justify-center items-center w-full space-y-6 font-semibold text-white rounded-sm">
+                    <AuthorizeView>
+                        <Authorized>
+                            @if (isUser == "true")
+                            {
+                                <div class="space-y-4 flex flex-col justify-center items-center hover:text-indigo-600">
+                                    <a href="/products" onclick="navToggle" class="text-white hover:text-indigo-200">Products</a>
+                                    <a href="/orders" class="text-white hover:text-indigo-200">Orders</a>
+                                    <a href="/cart" onclick="navToggle" class="text-white hover:text-indigo-200">Cart (@quantity)</a>
+                                </div>
+                                <a href="/logout" onclick="navToggle" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Logout</a>
+                            }
+                            @if (isAdmin == "true")
+                            {
+                                <a href="/products" onclick="navToggle" class="text-white hover:text-indigo-200">Products</a>
+                                <a href="/admin/dashboard" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Admin Panel</a>
+                            }
+                        </Authorized>
+                        <NotAuthorized>
+                            <div class="hover:text-indigo-600">
+                                <a href="/signin" class="text-white hover:text-indigo-200">Sign In</a>
+                            </div>
+                            <a href="/signup" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Sign Up</a>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            </div>
+            <div class="hidden items-center space-x-6 font-bold text-indigo-600 lg:flex">
+                <AuthorizeView>
+                    <Authorized>
+                        @if (isUser == "true")
+                        {
+                            <div class="space-x-8 hover:text-indigo-600">
+                                <a href="/orders" class="text-indigo-600 hover:text-indigo-500">Orders</a>
+                                <a href="/cart" class="text-indigo-600 hover:text-indigo-500">Cart (@quantity)</a>
+                            </div>
+                            <a href="/logout" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Logout</a>
+                        }
+                        @if(isAdmin == "true")
+                        {
+                            <a href="/admin/dashboard" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Admin Panel</a>
+                        }
+                    </Authorized>
+                    <NotAuthorized>
+                        <div class="hover:text-indigo-600">
+                            <a href="/signin" class="text-indigo-600 hover:text-indigo-500">Sign In</a>
+                        </div>
+                        <a href="/signup" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Sign Up</a>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<script>
+    window.navToggle = () => {
+        const btn = document.getElementById('menu-btn');
+        const menu = document.getElementById('menu');
+
+        function ToggleHandler() {
+            menu.classList.toggle('flex');
+            menu.classList.toggle('hidden');
+        };
+
+        btn.addEventListener('click', ToggleHandler);
+    }
+</script>
+
+@code {
+    [Inject]
+    HttpClient Client { get; set; }
+
+    [Inject]
+    ILocalStorageService localStorageService { get; set; }
+
+    [Inject]
+    AppStateManager appStateManager { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthState { get; set; }
+
+    private int quantity { get; set; }
+
+    private string? isUser { get; set; }
+    private string? isAdmin { get; set; }
+    private string trimmedUserId { get; set; }
+
+    protected async override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("navToggle");
+            appStateManager.OnQuantityChanged += async component => await AppStateChanged(component);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isUser = await localStorageService.GetItemAsStringAsync("isUser");
+        isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+
+        var authState = await AuthState;
+        if (isUser == "true" && authState.User.Identity.IsAuthenticated)
+        {
+            var userId = await localStorageService.GetItemAsStringAsync("id");
+            trimmedUserId = userId.Trim('"');
+            if (isUser == "true")
+            {
+                var cart = await Client.GetServiceResponseAsync<CartDTO>($"api/Cart/Get/{trimmedUserId}");
+                quantity = cart.Quantity;
+            }
+        }
+    }
+
+    private async Task AppStateChanged(ComponentBase component)
+    {
+        isUser = await localStorageService.GetItemAsStringAsync("isUser");
+        isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+        var authState = await AuthState;
+        if (isUser == "true" && authState.User.Identity.IsAuthenticated)
+        {
+            var userId = await localStorageService.GetItemAsStringAsync("id");
+            var trimmedUserId = userId.Trim('"');
+            var cart = await Client.GetServiceResponseAsync<CartDTO>($"api/Cart/Get/{trimmedUserId}");
+            quantity = cart.Quantity;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+}

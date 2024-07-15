@@ -1,0 +1,107 @@
+﻿@page "/signin"
+@inject IToastService toastService
+
+<div class="w-full grid grid-cols-2 flex justify-center content-center">
+	<img src="./images/auth.jpg" class="h-auto w-full col-span-2" />
+	<div class="col-span-2 justify-center lg:absolute w-full flex md:flex-col lg:flex-row lg:justify-end bg-transparent lg:mr-20">
+		<div class="flex flex-col justify-center mt-20 lg:mr-20 items-center">
+			<h3 class="lg:mt-20 lg:mr-20 font-bold text-2xl">Sign In</h3>
+			<EditForm Model=@request OnValidSubmit="SubmitHandler" class="bg-transparent rounded px-8 pt-6 pb-8 mb-4 lg:mr-20 w-full">
+				<DataAnnotationsValidator />
+				<div class="mb-4">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+						Email Address
+					</label>
+					<input @bind="@request.Email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="name@example.com">
+				</div>
+				<div class="mb-6">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+						Password
+					</label>
+					<input @bind="@request.Password" class="shadow appearance-none border border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="********">
+				</div>
+				<div class="flex items-center justify-between">
+					<button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+						Sign In
+					</button>
+					<a class="inline-block align-baseline font-bold text-sm text-indigo-600 hover:text-indigo-500" href="#">
+						Forgot Password ?
+					</a>
+				</div>
+			</EditForm>
+			<div class="lg:mt-10 lg:mr-20 align-middle flex flex-col justify-center items-center">
+				<p>Don't you have an account ?</p>
+				<a class="inline-block align-middle font-bold text-sm mt-5 text-indigo-600 hover:text-indigo-500" href="/signup">
+					Create an Account
+				</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Inject]
+	HttpClient Client { get; set; }
+
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+
+	[Inject]
+	ILocalStorageService localStorageService { get; set; }
+
+	[Inject]
+	AuthenticationStateProvider authStateProvider { get; set; }
+
+	[Inject]
+	AppStateManager appStateManager { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; }
+
+	private LoginRequestDTO request = new();
+
+	protected async override Task OnInitializedAsync()
+	{
+		var authState = await AuthState;
+		if (authState.User.Identity.IsAuthenticated)
+		{
+			navigationManager.NavigateTo("/");
+		}
+	}
+
+	protected async Task SubmitHandler()
+	{
+		var responseMessage = await Client.PostAsJsonAsync("api/Auth/Login", request);
+
+		if (responseMessage.IsSuccessStatusCode)
+		{
+			var response = await responseMessage.Content.ReadFromJsonAsync<ServiceResponse<LoginResponseDTO>>();
+			if (response.IsSuccess)
+			{
+				if (response.Data == null)
+				{
+					toastService.ShowError("Wrong password");
+					return;
+				}
+				await localStorageService.SetItemAsync("token", response.Data.Token);
+
+				var id = response.Data.User?.Id;
+				var email = response.Data.User?.Email;
+				var name = response.Data.User?.FirstName + " " + response.Data.User?.LastName;
+				bool isUser = true;
+
+				await localStorageService.SetItemAsync("id", id);
+				await localStorageService.SetItemAsync("email", email);
+				await localStorageService.SetItemAsync("name", name);
+				await localStorageService.SetItemAsync("isUser", isUser);
+
+				(authStateProvider as AuthStateProvider).NotifyLogin(email);
+
+				Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", response.Data.Token);
+				toastService.ShowSuccess("Successfully Logged In");
+				appStateManager.UpdateCartQuantity(this);
+				navigationManager.NavigateTo("/");
+			}
+		}
+	}
+}

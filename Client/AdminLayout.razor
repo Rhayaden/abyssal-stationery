@@ -1,0 +1,122 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JS;
+
+<BlazoredToasts />
+
+<div class="antialiased">
+    <nav class="bg-white border-b border-gray-200 px-4 py-2.5 fixed left-0 right-0 top-0 z-50">
+        <div class="flex flex-wrap justify-between items-center">
+            <div class="flex justify-start items-center">
+                <button id="menu-btn" data-drawer-target="drawer-navigation"
+                        data-drawer-toggle="drawer-navigation"
+                        aria-controls="drawer-navigation"
+                        class="p-2 mr-2 text-gray-600 rounded-lg cursor-pointer md:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100  focus:ring-2 focus:ring-gray-100">
+                    <svg aria-hidden="true"
+                         class="w-6 h-6"
+                         fill="currentColor"
+                         viewBox="0 0 20 20"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                              clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="sr-only">Toggle sidebar</span>
+                </button>
+                <a href="/admin/dashboard" class="flex items-center justify-between mr-4">
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap" style="font-family:Pacifico">Abyss</span>
+                </a>
+            </div>
+            <div class="flex items-center lg:order-2">
+                <div class="space-x-8 hover:text-indigo-600">
+                    <a href="/" class="text-indigo-600 hover:text-indigo-500 font-semibold"> 
+                        Main Page</a>
+                    <a href="/logout" class="text-indigo-600 hover:text-indigo-500 font-semibold">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="fixed top-0 left-0 z-40 w-64 h-screen pt-14 transition-transform -translate-x-full bg-white border-r border-gray-200 md:translate-x-0"
+           id="sidebar">
+        <div class="overflow-y-auto py-5 px-3 h-full bg-white">
+            <ul class="space-y-2">
+                <li>
+                    <a href="/admin/overview"
+                       class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg group">
+                        <svg aria-hidden="true"
+                             class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900"
+                             fill="currentColor"
+                             viewBox="0 0 20 20"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
+                        </svg>
+                        <span class="ml-3">Overview</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/users"
+                       class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg group">
+                        <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" /></svg>
+                        <span class="ml-3">User Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/categories/add"
+                       class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 group">
+                        <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" /></svg>
+                        <span class="ml-3">Add Category</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/categories"
+                       class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 group">
+                        <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z" /></svg>
+                        <span class="ml-3">Category Management</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/products/add"
+                       class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 group">
+                        <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" /></svg>
+                        <span class="ml-3">Add Product</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/admin/products"
+                       class="flex items-center p-2 text-base font-medium text-gray-900 rounded-lg hover:bg-gray-100 group">
+                        <svg class="w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M40 48C26.7 48 16 58.7 16 72v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V72c0-13.3-10.7-24-24-24H40zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H192zM16 232v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V232c0-13.3-10.7-24-24-24H40c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24v48c0 13.3 10.7 24 24 24H88c13.3 0 24-10.7 24-24V392c0-13.3-10.7-24-24-24H40z" /></svg>
+                        <span class="ml-3">Product Management</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <main class="p-4 md:ml-64 pt-20 h-auto">
+        @Body
+    </main>
+</div>
+
+<script>
+    window.sidebarToggle = () => {
+        const btn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+
+        function SidebarToggleHandler() {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('transform-none');
+        };
+
+        btn.addEventListener('click', SidebarToggleHandler);
+    }
+</script>
+
+@code{
+    protected async override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("sidebarToggle");
+        }
+    }
+}

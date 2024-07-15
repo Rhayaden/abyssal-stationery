@@ -1,0 +1,118 @@
+﻿@page "/admin/users/page/{Page:int}"
+@layout AdminLayout
+
+@if (users.Count > 0)
+{
+    <div class="w-full xl:w-8/12 xl:mb-0 px-4 mx-auto mt-12">
+        <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
+            <div class="rounded-t mb-0 px-4 py-3 border-0">
+                <div class="flex flex-wrap items-center">
+                    <div class="relative w-full px-4 max-w-full flex-grow flex-1">
+                        <h3 class="font-bold text-center text-indigo-600">User List</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="block w-full overflow-x-auto">
+                <table class="items-center bg-transparent w-full border-collapse ">
+                    <thead>
+                        <tr>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                User ID
+                            </th>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Name
+                            </th>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Email
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in users)
+                        {
+                            <tr>
+                                <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-left text-indigo-600 ">
+                                    @user.Id
+                                </th>
+                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
+                                    @user.FirstName @user.LastName
+                                </td>
+                                <td class="border-t-0 px-6 align-center border-l-0 border-r-0 whitespace-nowrap p-4">
+                                    @user.Email
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <Paginator ObjectCount="userCount" ObjectName="admin/users" CurrentPage="Page" Size="ItemsPerPage.User" />
+}
+else
+{
+    <p class="text-center font-bold text-xl h-screen">No users found</p>
+}
+
+@code {
+    [Inject]
+    public HttpClient Client { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    [Inject]
+    ILocalStorageService localStorageService { get; set; }
+
+    [Inject]
+    AppStateManager appStateManager { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    [Parameter]
+    public int Page { get; set; } = 1;
+
+    private int userCount { get; set; }
+
+    protected List<UserDTO> users { get; set; } = new();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            appStateManager.OnPageChanged += async component => await AppStateChanged(component);
+        }
+    }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+        var isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+        if (authState.User.Identity.IsAuthenticated && isAdmin == "true")
+        {
+            var emailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            var trimmedEmail = emailInClaims.Trim('"');
+            var data = await Client.GetServiceResponseAsync<bool>($"api/Admin/Check/{trimmedEmail}");
+            if (data == true)
+            {
+                users = await Client.GetServiceResponseAsync<List<UserDTO>>($"api/User/GetUserPage/{Page}");
+                userCount = await Client.GetServiceResponseAsync<int>("api/User/Count");
+            }
+            else
+            {
+                navigationManager.NavigateTo("/");
+            }
+        }
+        else
+        {
+            navigationManager.NavigateTo("/");
+        }
+    }
+
+    private async Task AppStateChanged(ComponentBase component)
+    {
+        users = await Client.GetServiceResponseAsync<List<UserDTO>>($"api/User/GetUserPage/{Page}");
+        await InvokeAsync(StateHasChanged);
+    }
+}

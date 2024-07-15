@@ -1,0 +1,235 @@
+﻿@page "/admin/products/add"
+@page "/admin/products/edit/{Id:guid}"
+@layout AdminLayout
+@inject IToastService toastService
+@inject IJSRuntime JS;
+
+
+        <div class="flex flex-col justify-start mt-20 items-center">
+            <h3 class="mt-20 font-bold text-2xl">@action Product</h3>
+            <EditForm Model=@productDTO OnValidSubmit="SubmitHandler" class="bg-transparent rounded px-8 pt-6 pb-8 mb-4 w-full">
+                <DataAnnotationsValidator />
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="title">
+                        Title
+                    </label>
+                    <input @bind="@productDTO.Title" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="title" type="text">
+                    <ValidationMessage For='@(()=>@productDTO.Title)' />
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="image">
+                        Image
+                    </label>
+                    <input type="file" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="image" />
+                    @if (action == "Edit")
+                    {
+                        <img class="mt-2" src="@productDTO.Image" id="imageDisplay" style="display:block; width:300px" />
+                    }
+                    <img class="mt-2" src="''" id="imageDisplay" style="display:none; width:300px" />
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="category">
+                        Category
+                    </label>
+                    <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" @bind="selectedCategoryId">
+                        @if (categoryList == null)
+                        {
+                            <option selected value="">None</option>
+                        }
+                        @if (action != "Edit")
+                        {
+                            <option selected value="">Select a Category</option>
+                        }
+                        @foreach (var category in categoryList)
+                        {
+                            @if (productDTO.CategoryId == category.Id)
+                            {
+                                <option selected value="@category.Id">@category.Name</option>
+                                continue;
+                            }
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="description">
+                        Description
+                    </label>
+                    <input @bind="@productDTO.Description" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="description" type="text">
+                    <ValidationMessage For='@(()=>@productDTO.Description)' />
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="price">
+                        Price ($)
+                    </label>
+                    <input @bind="@productDTO.Price" min="1" max="10000" step=".01" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="price" type="number">
+                    <ValidationMessage For='@(()=>@productDTO.Price)' />
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="stock">
+                        Stock
+                    </label>
+                    <input @bind="@productDTO.Stock" min="1" max="1000" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="stock" type="number">
+                    <ValidationMessage For='@(()=>@productDTO.Stock)' />
+                </div>
+                <div class="flex items-center justify-between">
+                    <button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                        @action Product
+                    </button>
+                    @if (action == "Edit")
+                    {
+                        <button type="button" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" data-bs-toggle="modal" data-bs-target="#confirmationModal">Delete</button>
+                    }
+                </div>
+            </EditForm>
+        </div>
+
+<script>
+	window.uploadHandler = () => {
+		const imageElement = document.getElementById('image');
+		const imageDisplayElement = document.getElementById('imageDisplay');
+
+		async function UploadImage(e) {
+			let data = new FormData();
+			data.append('formFile', e.target.files[0]);
+
+			const res = await fetch('/api/Image', {
+				method: 'POST',
+				headers: {
+					'Accept': '*/*'
+				},
+				body: data
+			});
+			const resData = await res.json();
+
+			imageDisplayElement.src = resData.link;
+			imageDisplayElement.style.display = 'block';
+
+            localStorage.setItem("imgUrl", resData.link);
+		};
+
+		imageElement.addEventListener('change', UploadImage);
+	}
+</script>
+
+@code {
+    [Inject]
+    HttpClient Client { get; set; }
+
+    [Inject]
+    ILocalStorageService localStorageService { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private ProductDTO productDTO = new();
+
+    private IEnumerable<CategoryDTO> categoryList = new List<CategoryDTO>();
+
+    private string action = "Add";
+
+    private string url { get; set; }
+
+    private bool? isAdmin { get; set; }
+
+    private Guid selectedCategoryId { get; set; }
+
+    private string? imgUrl { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthState;
+        var isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+        if (authState.User.Identity.IsAuthenticated && isAdmin == "true")
+        {
+            var emailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            var trimmedEmail = emailInClaims.Trim('"');
+            var data = await Client.GetServiceResponseAsync<bool>($"api/Admin/Check/{trimmedEmail}");
+            if (data == false)
+            {
+                navigationManager.NavigateTo("/");
+            }
+        }
+        else
+        {
+            navigationManager.NavigateTo("/");
+        }
+
+        categoryList = await Client.GetServiceResponseAsync<IEnumerable<CategoryDTO>>($"api/Category/Get");
+
+        if (Id != Guid.Empty)
+        {
+            productDTO = await Client.GetServiceResponseAsync<ProductDTO>($"api/Product/Get/{Id}");
+            action = "Edit";
+            selectedCategoryId = productDTO.CategoryId;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("uploadHandler");
+        }
+    }
+
+    protected async Task SubmitHandler()
+    {
+        if (productDTO.Stock < 1)
+        {
+            toastService.ShowError("Stock cannot be less than 1");
+            return;
+        }
+        url = "api/Product/Update";
+        ProductDTO data = null;
+
+        var slctd = selectedCategoryId;
+
+        if (productDTO.Id == Guid.Empty)
+        {
+            url = "api/Product/Create";
+
+            imgUrl = await localStorageService.GetItemAsStringAsync("imgUrl");
+
+            if (!String.IsNullOrEmpty(imgUrl))
+            {
+                productDTO.Image = imgUrl.Trim('"');
+            }
+
+            if (String.IsNullOrEmpty(productDTO.Title))
+            {
+                toastService.ShowError("Title required");
+                return;
+            }
+        }
+        if (selectedCategoryId == Guid.Empty)
+        {
+            toastService.ShowError("Please select a category");
+            return;
+        }
+        productDTO.CategoryId = selectedCategoryId;
+
+        data = await Client.PostServiceResponseAsync<ProductDTO, ProductDTO>(url, productDTO);
+
+        if (data != null)
+        {
+            if (action == "Edit")
+            {
+                toastService.ShowSuccess("Product updated!");
+                await localStorageService.RemoveItemAsync("imgUrl");
+            }
+            else
+            {
+                toastService.ShowSuccess("Added New Product");
+                await localStorageService.RemoveItemAsync("imgUrl");
+            }
+            navigationManager.NavigateTo("/admin/products");
+        }
+    }
+}

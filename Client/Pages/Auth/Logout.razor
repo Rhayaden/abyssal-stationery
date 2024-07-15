@@ -1,0 +1,41 @@
+﻿@page "/logout"
+@inject IToastService toastService
+
+@code {
+	[Inject]
+	HttpClient Client { get; set; }
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+
+	[Inject]
+	ILocalStorageService localStorageService { get; set; }
+
+	[Inject]
+	AuthenticationStateProvider authStateProvider { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; }
+
+	protected async override Task OnInitializedAsync()
+	{
+		var authState = await AuthState;
+
+		await localStorageService.RemoveItemAsync("token");
+		await localStorageService.RemoveItemAsync("id");
+		await localStorageService.RemoveItemAsync("email");
+		await localStorageService.RemoveItemAsync("name");
+		await localStorageService.RemoveItemAsync("isUser");
+		await localStorageService.RemoveItemAsync("isAdmin");
+
+		(authStateProvider as AuthStateProvider).NotifyLogout();
+
+		Client.DefaultRequestHeaders.Authorization = null;
+
+		if (authState.User.Identity.IsAuthenticated)
+		{
+			toastService.ShowInfo("Successfully Logged Out");
+		}
+
+		navigationManager.NavigateTo("/");
+	}
+}

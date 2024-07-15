@@ -1,0 +1,110 @@
+﻿@page "/admin/categories/add"
+@page "/admin/categories/edit/{Id:guid}"
+@layout AdminLayout
+@inject IToastService toastService
+
+	<div class="flex flex-col justify-start mt-20 items-center">
+		<h3 class="mt-20 font-bold text-2xl">@action Category</h3>
+	<EditForm Model=@categoryDTO OnValidSubmit="SubmitHandler" class="bg-transparent rounded px-8 pt-6 pb-8 mb-4 w-full">
+				<DataAnnotationsValidator />
+				<div class="mb-4">
+					<label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+						Name
+					</label>
+					<input @bind="@categoryDTO.Name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text" >
+					<ValidationMessage For='@(()=>@categoryDTO.Name)' />
+				</div>
+				<div class="flex items-center justify-between">
+					<button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+						@action Category
+					</button>
+					@if (action == "Edit")
+					{
+						<button type="button" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" data-bs-toggle="modal" data-bs-target="#confirmationModal">Delete</button>
+					}
+				</div>
+			</EditForm>
+		</div>
+
+@code {
+	[Inject]
+	HttpClient Client { get; set; }
+
+	[Inject]
+	ILocalStorageService localStorageService { get; set; }
+
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; }
+
+	[Parameter]
+	public Guid Id { get; set; }
+
+	private CategoryDTO categoryDTO = new();
+
+	private string action = "Add";
+
+	private string url { get; set; }
+
+	private bool? isAdmin { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthState;
+		var isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+		if (authState.User.Identity.IsAuthenticated && isAdmin == "true")
+		{
+			var emailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+			var trimmedEmail = emailInClaims.Trim('"');
+			var data = await Client.GetServiceResponseAsync<bool>($"api/Admin/Check/{trimmedEmail}");
+			if (data == false)
+			{
+				navigationManager.NavigateTo("/");
+			}
+		}
+		else
+		{
+			navigationManager.NavigateTo("/");
+		}
+
+		if (Id != Guid.Empty)
+		{
+			categoryDTO = await Client.GetServiceResponseAsync<CategoryDTO>($"api/Category/Get/{Id}");
+			action = "Edit";
+		}
+	}
+
+	protected async Task SubmitHandler()
+	{
+
+		url = "api/Category/Update";
+		CategoryDTO data = null;
+
+		if (categoryDTO.Id == Guid.Empty)
+		{
+			url = "api/Category/Create";
+			if (String.IsNullOrEmpty(categoryDTO.Name))
+			{
+				toastService.ShowError("Name required");
+				return;
+			}
+		}
+
+		data = await Client.PostServiceResponseAsync<CategoryDTO, CategoryDTO>(url, categoryDTO);
+
+		if (data != null)
+		{
+			if (action == "Edit")
+			{
+				toastService.ShowSuccess("Category updated!");
+			}
+			else
+			{
+				toastService.ShowSuccess("Added New Category");
+			}
+			navigationManager.NavigateTo("/admin/categories");
+		}
+	}
+}

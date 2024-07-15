@@ -1,0 +1,77 @@
+﻿<div class="flex justify-center items-center pt-10">
+    <nav aria-label="Page navigation example">
+        <ul class="flex items-center -space-x-px h-8 text-sm">
+            <li>
+                @if (CurrentPage == 1)
+                {
+                    <a href="/@ObjectName/page/1" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-white bg-indigo-600 border border-e-0 border-indigo-200 rounded-s-lg hover:bg-indigo-100 hover:text-indigo-500">
+                        <span class="sr-only">Previous</span>
+                        <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4" />
+                        </svg>
+                    </a>
+                }
+                else
+                {
+                    <a href="/@ObjectName/page/@(CurrentPage-1)" class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-white bg-indigo-600 border border-e-0 border-indigo-200 rounded-s-lg hover:bg-indigo-100 hover:text-indigo-500">
+                        <span class="sr-only">Previous</span>
+                        <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4" />
+                        </svg>
+                    </a>
+                }
+            </li>
+            @for (PageNumber = 1; PageNumber <= (ObjectCount / Size + 1); PageNumber++)
+            {
+                <li>
+                    <a href="/@ObjectName/page/@PageNumber" class="flex items-center justify-center px-3 h-8 leading-tight text-white bg-indigo-600 border border-indigo-200 hover:bg-indigo-100 hover:text-indigo-500">@PageNumber</a>
+                </li>
+            }
+            <li>
+                @if (CurrentPage == (ObjectCount / Size + 1))
+                {
+                    <a href="/@ObjectName/page/@(ObjectCount / Size + 1)" class="flex items-center justify-center px-3 h-8 leading-tight text-white bg-indigo-600 border border-indigo-200 rounded-e-lg hover:bg-indigo-100 hover:text-indigo-500">
+                        <span class="sr-only">Next</span>
+                        <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                        </svg>
+                    </a>
+                }
+                else
+                {
+                    <a href="/@ObjectName/page/@(CurrentPage+1)" class="flex items-center justify-center px-3 h-8 leading-tight text-white bg-indigo-600 border border-indigo-200 rounded-e-lg hover:bg-indigo-100 hover:text-indigo-500">
+                        <span class="sr-only">Next</span>
+                        <svg class="w-2.5 h-2.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4" />
+                        </svg>
+                    </a>
+                }
+            </li>
+        </ul>
+    </nav>
+</div>
+
+@code {
+    [Inject]
+    AppStateManager appStateManager { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
+
+    [Parameter]
+    public int ObjectCount { get; set; }
+    [Parameter]
+    public int Size { get; set; }
+
+    [Parameter]
+    public int CurrentPage { get; set; }
+
+    public int PageNumber { get; set; }
+    [Parameter]
+    public string ObjectName { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        appStateManager.UpdatePage(this);
+    }
+}
