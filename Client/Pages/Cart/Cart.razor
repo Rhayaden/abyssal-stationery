@@ -3,7 +3,7 @@
 
 @if(cart?.Products?.Count > 0)
 {
-    <div class="w-full max-w-7xl px-4 md:px-5 lg-6 mx-auto relative z-10">
+    <div class="w-full max-w-7xl px-4 md:px-5 mt-6 lg-6 mx-auto relative z-10">
         <div class="grid grid-cols-12">
             <div class="col-span-12 xl:col-span-8 lg:pr-8 pt-14 pb-8 lg:py-24 w-full max-xl:max-w-3xl max-xl:mx-auto">
                 <div class="flex items-center justify-between pb-8 border-b border-gray-300">
@@ -35,7 +35,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-4 w-full">
                             <div class="md:col-span-2">
                                 <div class="flex flex-col max-[500px]:items-center gap-3">
-                                    <h6 class="font-semibold text-base leading-7 text-black">@product.ProductTitle</h6>
+                                    <a href="/products/@product.ProductId" class="font-semibold text-base leading-7 text-black hover:text-indigo-600">@product.ProductTitle</a>
                                     <h6 class="font-normal text-base leading-7 text-gray-500">@product.Category</h6>
                                     <h6 class="font-medium text-base leading-7 text-gray-600 hover:text-indigo-600">$ @product.Price</h6>
                                 </div>
@@ -79,7 +79,7 @@
 }
 else
 {
-    <p class="text-center font-bold text-xl h-screen">Cart is empty</p>
+    <p class="text-center mt-6 font-bold text-xl h-screen">Cart is empty</p>
 }
 
 @code {
@@ -131,6 +131,32 @@ else
         userId = await localStorageService.GetItemAsStringAsync("id");
         trimmedUserId = userId.Trim('"');
         cart = await Client.GetServiceResponseAsync<CartDTO>($"api/Cart/Get/{trimmedUserId}");
+        var productsOnSale = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>("api/Product/GetAllSales");
+        foreach(var product in cart.Products)
+        {
+            foreach(var productOnSale in productsOnSale)
+            {
+                if(product.ProductId != productOnSale.Id)
+                {
+                    var currentProduct = await Client.GetServiceResponseAsync<ProductDTO>($"api/Product/Get/{product.ProductId}");
+                    if (currentProduct.SalePrice > 0)
+                    {
+                        if (product.Price != currentProduct.SalePrice)
+                        {
+                            await Client.PostServiceResponseAsync<CartDTO, ProductInCartDTO>($"api/Cart/Update/{trimmedUserId}", product);
+                            cart.Total = cart.Total - product.Price * product.Quantity + currentProduct.Price * product.Quantity;
+                            product.Price = currentProduct.Price;
+                        }
+                    }
+                    else
+                    {
+                        await Client.PostServiceResponseAsync<CartDTO, ProductInCartDTO>($"api/Cart/Update/{trimmedUserId}", product);
+                        cart.Total = cart.Total - product.Price * product.Quantity + currentProduct.Price * product.Quantity;
+                        product.Price = currentProduct.Price;
+                    }
+                }
+            }
+        }
     }
 
     protected async Task RemoveFromCartHandler(Guid id)

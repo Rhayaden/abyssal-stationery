@@ -1,6 +1,7 @@
 using Blazor.Server.Data;
 using Blazor.Server.Mappings;
 using Blazor.Server.Middlewares;
+using Blazor.Server.Models;
 using Blazor.Server.Services;
 using Blazor.Server.Services.IServices;
 using Blazored.LocalStorage;
@@ -25,6 +26,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ISubcategoryService, SubcategoryService>();
+builder.Services.AddScoped<ISub_subcategoryService, Sub_subcategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IImageService, CloudinaryImageService>();
 builder.Services.AddScoped<ICartService, CartService>();

@@ -1,4 +1,4 @@
-﻿<div class="flex justify-center items-center pt-10">
+﻿<div class="flex justify-center items-center pt-8">
     <nav aria-label="Page navigation example">
         <ul class="flex items-center -space-x-px h-8 text-sm">
             <li>
@@ -70,8 +70,10 @@
     [Parameter]
     public string ObjectName { get; set; }
 
+    private bool notFirstRender { get; set; }
+    
     protected override void OnParametersSet()
     {
         appStateManager.UpdatePage(this);
-    }
+	}
 }

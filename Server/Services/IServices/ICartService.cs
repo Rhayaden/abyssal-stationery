@@ -7,6 +7,7 @@ namespace Blazor.Server.Services.IServices
         public Task<CartDTO> Get(Guid userId);
 		public Task<CartDTO> Add(Guid userId, ProductInCartDTO productDTO, int quantity = 1);
 		public Task<CartDTO> Remove(Guid userId, ProductInCartDTO productDTO, int quantity = 1);
+		public Task<CartDTO> Update(Guid userId, ProductInCartDTO productDTO);
 		public Task<CartDTO> Clear(Guid userId);
 	}
 }

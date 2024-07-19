@@ -1,11 +1,11 @@
 ﻿@page "/admin/users/page/{Page:int}"
 @layout AdminLayout
 
-@if (users.Count > 0)
+@if (users.Count() > 0)
 {
-    <div class="w-full xl:w-8/12 xl:mb-0 px-4 mx-auto mt-12">
+    <div class="w-full mx-auto mt-12 px-2 h-screen">
         <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
-            <div class="rounded-t mb-0 px-4 py-3 border-0">
+            <div class="rounded-t px-4 mb-0 py-3 border-0">
                 <div class="flex flex-wrap items-center">
                     <div class="relative w-full px-4 max-w-full flex-grow flex-1">
                         <h3 class="font-bold text-center text-indigo-600">User List</h3>
@@ -20,10 +20,16 @@
                                 User ID
                             </th>
                             <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Name
+                                First Name <button class="text-xl pr-1" @onclick="SortByFirstNameHandler">↓</button><button class="text-xl" @onclick="SortByFirstNameDescHandler">↑</button>
                             </th>
                             <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Email
+                                Last Name <button class="text-xl pr-1" @onclick="SortByLastNameHandler">↓</button><button class="text-xl" @onclick="SortByLastNameDescHandler">↑</button>
+                            </th>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Email <button class="text-xl pr-1" @onclick="SortByEmailHandler">↓</button><button class="text-xl" @onclick="SortByEmailDescHandler">↑</button>
+                            </th>
+                            <th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Registered Date <button class="text-xl pr-1" @onclick="SortByDateDesc">↓</button><button class="text-xl pr-1" @onclick="SortByDate">↑</button>
                             </th>
                         </tr>
                     </thead>
@@ -35,10 +41,16 @@
                                     @user.Id
                                 </th>
                                 <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
-                                    @user.FirstName @user.LastName
+                                    @user.FirstName
+                                </td>
+                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
+                                    @user.LastName
                                 </td>
                                 <td class="border-t-0 px-6 align-center border-l-0 border-r-0 whitespace-nowrap p-4">
                                     @user.Email
+                                </td>
+                                <td class="border-t-0 px-6 align-center border-l-0 border-r-0 whitespace-nowrap p-4">
+                                    @user.RegisteredAt.ToShortDateString()
                                 </td>
                             </tr>
                         }
@@ -46,12 +58,12 @@
                 </table>
             </div>
         </div>
-    </div>
     <Paginator ObjectCount="userCount" ObjectName="admin/users" CurrentPage="Page" Size="ItemsPerPage.User" />
+    </div>
 }
 else
 {
-    <p class="text-center font-bold text-xl h-screen">No users found</p>
+    <p class="text-center mt-6 font-bold text-xl h-screen">No users found</p>
 }
 
 @code {
@@ -75,7 +87,7 @@ else
 
     private int userCount { get; set; }
 
-    protected List<UserDTO> users { get; set; } = new();
+    private IEnumerable<UserDTO> users = new List<UserDTO>();
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -108,6 +120,39 @@ else
         {
             navigationManager.NavigateTo("/");
         }
+    }
+
+    private void SortByFirstNameHandler()
+    {
+        users = users.OrderBy(u => u.FirstName);
+    }
+    private void SortByFirstNameDescHandler()
+    {
+        users = users.OrderByDescending(u => u.FirstName);
+    }
+    private void SortByLastNameHandler()
+    {
+        users = users.OrderBy(u => u.LastName);
+    }
+    private void SortByLastNameDescHandler()
+    {
+        users = users.OrderByDescending(u => u.LastName);
+    }
+    private void SortByEmailHandler()
+    {
+        users = users.OrderBy(u => u.Email);
+    }
+    private void SortByEmailDescHandler()
+    {
+        users = users.OrderByDescending(u => u.Email);
+    }
+    private void SortByDate()
+    {
+        users = users.OrderBy(u => u.RegisteredAt);
+    }
+    private void SortByDateDesc()
+    {
+        users = users.OrderByDescending(u => u.RegisteredAt);
     }
 
     private async Task AppStateChanged(ComponentBase component)

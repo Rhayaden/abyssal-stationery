@@ -1,32 +1,25 @@
 ﻿@page "/products/page/{Page:int}"
+@inject IToastService toastService
+@inject IJSRuntime JS;
 
 <div class="flex h-screen">
 
     <!-- Sidebar -->
-    <div class="hidden md:flex flex-col w-64 bg-indigo-200">
-        <div class="flex items-center justify-center h-16">
-            <span class="text-indigo-600 font-bold uppercase">Categories</span>
+    <div id="categorySidebar" class="hidden absolute sm:relative left-0 md:flex flex-col w-64 z-40">
+        <div class="flex items-center justify-center bg-gray-100 border-b border-white h-16">
+            <button @onclick="GetAllProductsHandler" class="text-indigo-600 w-full h-full font-bold uppercase hover:bg-indigo-100">
+                All Products
+            </button>
         </div>
         <div class="flex flex-col flex-1 overflow-y-auto">
-            <nav class="flex-1 px-2 py-4 bg-gray-100">
-                <button @onclick="GetAllProductsHandler" class="flex items-center px-4 py-2 font-semibold text-indigo-600 rounded hover:text-white hover:bg-indigo-600">
-                    All Products
-                </button>
-                @foreach(var category in categories)
+            <nav class="flex-1 py-4 bg-gray-100 flex flex-col items-center">
+                @if (anyOnSale)
                 {
-                    <button @onclick="()=>CategoryChangeHandler(category.Id)" class="flex items-center px-4 py-2 font-semibold text-indigo-600 rounded hover:text-white hover:bg-indigo-600">
-                        @category.Name
+                    <button @onclick="GetOnSalesHandler" class="w-3/4 items-center py-2 my-2 font-semibold text-rose-600 rounded-lg outline hover:text-white hover:bg-rose-500">
+                        ON SALE
                     </button>
                 }
-            </nav>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="flex flex-col flex-1">
-        <div class="flex items-center justify-between h-16 bg-white border-b border-indigo-200 bg-indigo-200 z-1">
-            <div class="flex items-center px-4 w-full">
-                <form class="w-full mx-auto" @onsubmit="SearchHandler">
+                <form class="w-full py-2 mx-auto" @onsubmit="SearchCategoryHandler">
                     <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
@@ -34,30 +27,145 @@
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
                             </svg>
                         </div>
-                        <input @bind="@search" type="search" id="default-search" class="block w-full p-4 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50" placeholder="Search by title..." />
+                        <input @bind="@searchCategory" type="search" class="block w-full p-4 ps-10 text-sm font-medium text-slate-900 rounded-lg bg-gray-50" placeholder="Search by Category" />
                         <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-indigo-600 hover:bg-indigo-500 focus:outline-none font-medium rounded-lg text-sm px-4 py-2">Search</button>
                     </div>
                 </form>
+                <div class="relative w-11/12 h-10 min-w-[200px]">
+                    <select @onchange="HandleSelectionChange" class="peer h-full w-full rounded-lg border border-indigo-gray-200 border-t-transparent bg-transparent px-3 py-1 font-sans text-indigo-gray-800 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-indigo-gray-200 placeholder-shown:border-t-indigo-gray-200 empty:!bg-gray-900 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-indigo-gray-50">
+                        <option selected disabled>Select Category</option>
+                        <option value="">All Categories</option>
+                        @foreach (var category in categories)
+                        {
+                            <hr />
+                            <option value="@category.Id" class="text-lg font-bold">@category.Name</option>
+                            @foreach (var subcategory in category.Subcategories)
+                            {
+                                @if (category.Name != subcategory.Name)
+                                {
+                                    <option value="@subcategory.Id" class="text-base font-semibold">&nbsp;&nbsp;@subcategory.Name</option>
+                                }
+                                @foreach (var subSubcategory in subcategory.Subsubcategories)
+                                {
+                                    @if (subcategory.Name != subSubcategory.Name)
+                                    {
+                                        <option value="@subSubcategory.Id" class="text-base">&nbsp;&nbsp;&nbsp;&nbsp;@subSubcategory.Name</option>
+                                    }
+                                }
+                            }
+                        }
+                    </select>
+                        <label class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-medium leading-tight text-indigo-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-indigo-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-indigo-gray-200 after:transition-all peer-placeholder-shown:text-md peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-indigo-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-indigo-gray-500">
+                            Select by Category
+                        </label>
+                </div>
+                @if (isActivePromotion)
+                {
+                    @foreach(var activePromotion in activePromotions)
+                    {
+                        <button @onclick="()=>GetPromotionsHandler(activePromotion.Id)"
+                                class="w-3/4 items-center py-2 my-2 font-semibold text-rose-600 rounded-lg outline hover:text-white hover:bg-rose-500">
+                            @activePromotion.PromotionName
+                        </button>
+                    }
+                }
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-1">
+        <button id="categoryToggleButton"
+                class="p-2 absolute top-7 left-2 mr-2 w-10 z-20 text-indigo-600 rounded-lg cursor-pointer md:hidden hover:text-indigo-500 hover:bg-gray-100 focus:bg-gray-100 focus:ring-2 focus:ring-gray-100">
+            <svg aria-hidden="true"
+                 class="w-6 h-6"
+                 fill="currentColor"
+                 viewBox="0 0 20 20"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                      d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                      clip-rule="evenodd"></path>
+            </svg>
+            <span class="sr-only">Toggle sidebar</span>
+        </button>
+        <div class="flex flex-col items-center justify-between bg-white shadow-lg">
+            <div class="flex flex-col sm:flex-row pt-1 pb-1 items-center px-4 w-full">
+                <form class="w-full mx-auto px-4" @onsubmit="SearchHandler">
+                    <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                            </svg>
+                        </div>
+                        <input @bind="@searchProduct" type="search" class="block w-full p-4 ps-10 text-slate-900 font-semibold rounded-lg bg-gray-50" placeholder="Search by title..." />
+                        <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-indigo-600 hover:bg-indigo-500 focus:outline-none font-medium rounded-lg text-sm px-4 py-2">Search</button>
+                    </div>
+                </form>
+                <div class="relative inline-block text-left py-2 w-60 lg:w-2/6 xl:w-1/6" id="sortBtn" onclick="sortToggle">
+                    <div class="pt-2 sm:pt-0">
+                        <button type="button" class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-2 py-2 text-sm font-semibold text-indigo-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" id="menu-button" aria-expanded="true" aria-haspopup="true">
+                            <svg class="-mr-1 h-5 w-5 text-indigo-600" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path id="primary" d="M3,12H17M3,7H21M3,17H13" style="fill: none; stroke: rgb(79, 70, 229); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2;"></path></svg>
+                            @SortingText
+                            <svg class="-mr-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="hidden absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" id="sortMenu">
+                        <div class="py-1" role="none">
+                            <button class="block px-4 py-2 text-indigo-600 hover:bg-gray-50 w-full" @onclick="GetAllProductsHandler">Latest</button>
+                            <button class="block px-4 py-2 text-indigo-600 hover:bg-gray-50 w-full" @onclick="SortByAlphabetically">Alphabetically</button>
+                            <button class="block px-4 py-2 text-indigo-600 hover:bg-gray-50 w-full" @onclick="SortByPriceLow">Price: Low to High</button>
+                            <button class="block px-4 py-2 text-indigo-600 hover:bg-gray-50 w-full" @onclick="SortByPriceHigh">Price: High to Low</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         @if (productList.Count() > 0)
         {
-            <div class="mx-auto max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 mt-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="mx-auto max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 mt-12 sm:mt-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @foreach (var product in productList)
                     {
-                        <a href="/products/@product.Id" class="mx-auto sm:mr-0 group cursor-pointer lg:mx-auto bg-white transition-all duration-500 p-1 border rounded">
-                            <div class="">
-                                <img src="@product.Image" alt="@product.Title" class="w-full aspect-square">
+                        <div class="inline max-w-[384px] h-100 mx-auto">
+                            <div class="w-full h-3/4 max-w-sm aspect-square relative">
+                                <a href="/products/@product.Id">
+                                    <img src="@product.Image" alt="@product.Title" class="w-full h-full rounded-xl">
+                                    @if (product.OnSale)
+                                    {
+                                        <span class="py-1 min-[400px]:py-2 px-2 min-[400px]:px-4 cursor-pointer rounded-lg bg-gradient-to-tr from-indigo-600 to-rose-600 font-medium text-base leading-7 text-white absolute top-3 right-3 z-10">
+                                            @product.Discount%
+                                            Off
+                                        </span>
+                                    }
+                                </a>
                             </div>
-                            <div class="mt-5">
-                                <div class="flex items-center justify-between">
-                                    <h6 class="font-semibold text-xl leading-8 text-black transition-all duration-500 group-hover:text-indigo-600">@product.Title</h6>
-                                    <h6 class="font-semibold text-xl leading-8 text-indigo-600">$@product.Price</h6>
+                            <div class="mt-5 flex items-center justify-between">
+                                <div class="m-0">
+                                    <a href="/products/@product.Id"><h6 class="font-medium text-xl leading-8 text-black mb-2">@product.Title</h6></a>
+                                    @if (product.OnSale)
+                                    {
+                                        <h6 class="inline font-semibold text-xl leading-8 line-through text-indigo-600">$@product.Price</h6>
+                                        <h6 class="inline font-semibold text-xl leading-8 text-rose-500">$@product.SalePrice</h6>
+                                    }
+                                    else
+                                    {
+                                        <h6 class="font-semibold text-xl leading-8 text-indigo-600">$@product.Price</h6>
+                                    }
                                 </div>
-                                <p class="mt-2 font-normal text-sm leading-6 text-gray-500">@product.Category.Name</p>
+                                <button disabled="@(isAdmin == "true")" @onclick="()=>AddToCartHandler(product.Id)" class="p-2 min-[400px]:p-4 rounded-full bg-white border border-gray-300 flex items-center justify-center group shadow-sm shadow-transparent transition-all duration-500 hover:shadow-gray-200 hover:border-indigo-500 hover:bg-indigo-600">
+                                    <svg class="stroke-gray-900 transition-all duration-500 group-hover:stroke-white"
+                                         xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26"
+                                         fill="none">
+                                        <path d="M12.6892 21.125C12.6892 22.0225 11.9409 22.75 11.0177 22.75C10.0946 22.75 9.34632 22.0225 9.34632 21.125M19.3749 21.125C19.3749 22.0225 18.6266 22.75 17.7035 22.75C16.7804 22.75 16.032 22.0225 16.032 21.125M4.88917 6.5L6.4566 14.88C6.77298 16.5715 6.93117 17.4173 7.53301 17.917C8.13484 18.4167 8.99525 18.4167 10.7161 18.4167H18.0056C19.7266 18.4167 20.587 18.4167 21.1889 17.9169C21.7907 17.4172 21.9489 16.5714 22.2652 14.8798L22.8728 11.6298C23.3172 9.25332 23.5394 8.06508 22.8896 7.28254C22.2398 6.5 21.031 6.5 18.6133 6.5H4.88917ZM4.88917 6.5L4.33203 3.25"
+                                              stroke="" stroke-width="1.6" stroke-linecap="round" />
+                                    </svg>
+                                </button>
                             </div>
-                        </a>
+                        </div>
                     }
                 </div>
             </div>
@@ -70,61 +178,282 @@
     </div>
 </div>
 
+<script>
+    window.sortToggle = () => {
+        const btn = document.getElementById('sortBtn');
+        const sortMenu = document.getElementById('sortMenu');
+        const categoryToggleButton = document.getElementById('categoryToggleButton');
+        const categorySidebar = document.getElementById('categorySidebar');
+
+        function SortToggleHandler() {
+            sortMenu.classList.toggle('hidden');
+        };
+
+        function CategoryToggleHandler() {
+            categorySidebar.classList.toggle('hidden');
+        };
+
+        btn.addEventListener('click', SortToggleHandler);
+        categoryToggleButton.addEventListener('click', CategoryToggleHandler);
+    };
+</script>
+
 @code {
     [Inject]
     HttpClient Client { get; set; }
+
+    [Inject]
+    ILocalStorageService localStorageService { get; set; }
+
+    [Inject]
+    NavigationManager navigationManager { get; set; }
 
     [Inject]
     AppStateManager appStateManager { get; set; }
 
     private IEnumerable<CategoryDTO> categories = new List<CategoryDTO>();
     private IEnumerable<ProductDTO> productList = new List<ProductDTO>();
+    private IEnumerable<ProductDTO> productsOnSale = new List<ProductDTO>();
+    private IEnumerable<SubcategoryDTO> activePromotions = new List<SubcategoryDTO>();
 
-    private string? search { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthState { get; set; }
+
+    private bool anyOnSale { get; set; } = false;
+    private bool isActivePromotion { get; set; } = false;
+
+    private string? searchProduct { get; set; }
+    private string? searchCategory { get; set; }
     private int productCount { get; set; }
+
+    private Guid selectedCategoryId { get; set; }
+
+    private bool isSearched { get; set; }
 
     [Parameter]
     public int Page { get; set; } = 1;
 
-    protected override void OnAfterRender(bool firstRender)
+    private string SortingText { get; set; } = "Latest";
+
+    private string userEmailInLocalStorage { get; set; }
+    private string userEmailInClaims { get; set; }
+    private string isAdmin { get; set; }
+    private bool isAuth { get; set; }
+    private ProductInCartDTO productInCartDTO = new();
+    private int quantityInCart { get; set; } = 0;
+    private bool isOverQuantity { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await JS.InvokeVoidAsync("sortToggle");
             appStateManager.OnPageChanged += async component => await AppStateChanged(component);
-            appStateManager.OnCategoriesChanged += async component => await AppStateChanged(component);
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthState;
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            isAuth = true;
+            userEmailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+            userEmailInLocalStorage = await localStorageService.GetItemAsStringAsync("email");
+            isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+        }
+        else
+        {
+            isAuth = false;
+        }
+        await Client.PostAsync($"api/Product/CheckSale", null);
         categories = await Client.GetServiceResponseAsync<IEnumerable<CategoryDTO>>("api/Category/Get");
         productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+        productsOnSale = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetOnSales/{Page}");
+        activePromotions = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>("api/Subcategory/Promotions");
+        if (productsOnSale.Count() > 0)
+        {
+            anyOnSale = true;
+        }
+        else
+        {
+            anyOnSale = false;
+        }
+
+        if (activePromotions.Count() > 0)
+        {
+            isActivePromotion = true;
+        }
+        else
+        {
+            isActivePromotion = false;
+        }
+
         productCount = await Client.GetServiceResponseAsync<int>($"api/Product/Count");
     }
 
-    private async Task CategoryChangeHandler(Guid categoryId)
+    protected async Task AddToCartHandler(Guid id)
     {
-        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Category/{categoryId}");
+        if (isAuth == false)
+        {
+            navigationManager.NavigateTo("/signin");
+            return;
+        }
+        if (AuthorizationChecker.IsAuthorizedToMakeChangesInCart(userEmailInLocalStorage, userEmailInClaims) == false)
+        {
+            toastService.ShowWarning("Not Authorized");
+            return;
+        }
+        var userId = await localStorageService.GetItemAsStringAsync("id");
+        var trimmedUserId = userId.Trim('"');
+
+        var productDTO = await Client.GetServiceResponseAsync<ProductDTO>($"api/Product/Get/{id}");
+
+        var subSubcategory = await Client.GetServiceResponseAsync<Sub_subcategoryDTO>($"api/Sub_subcategory/Get/{productDTO.SubsubcategoryId}");
+
+        var cart = await Client.GetServiceResponseAsync<CartDTO>($"api/Cart/Get/{trimmedUserId}");
+        var productInCart = cart.Products.FirstOrDefault(p => p.ProductId == productDTO.Id);
+        if (productInCart != null)
+        {
+            quantityInCart = productInCart.Quantity;
+        }
+
+        productInCartDTO.ProductId = productDTO.Id;
+        productInCartDTO.ProductTitle = productDTO.Title;
+        productInCartDTO.Category = subSubcategory.Name;
+        productInCartDTO.Image = productDTO.Image;
+        productInCartDTO.Quantity = quantityInCart;
+        if (productDTO.OnSale)
+        {
+            productInCartDTO.Price = (decimal)productDTO.SalePrice;
+        }
+        else
+        {
+            productInCartDTO.Price = productDTO.Price;
+        }
+        productInCartDTO.Stock = productDTO.Stock;
+
+        if (1 > productDTO.Stock || 1 > productDTO.Stock - quantityInCart)
+        {
+            isOverQuantity = true;
+            return;
+        }
+        else
+        {
+            isOverQuantity = false;
+        }
+        if (productDTO.Stock <= quantityInCart)
+        {
+            return;
+        }
+        var data = await Client.PostServiceResponseAsync<CartDTO, ProductInCartDTO>($"api/Cart/Add/{trimmedUserId}/1", productInCartDTO);
+
+        if (data.Id == Guid.Empty)
+        {
+            toastService.ShowSuccess("Out of Stock");
+            return;
+        }
+
+        if (data != null)
+        {
+            appStateManager.UpdateCartQuantity(this);
+
+            toastService.ShowInfo("Added to Cart");
+            navigationManager.NavigateTo("/cart");
+        }
+    }
+
+    private async Task GetOnSalesHandler()
+    {
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetOnSales/{Page}");
+        SortingText = "Latest";
+    }
+
+    private async Task GetPromotionsHandler(Guid subcategoryId)
+    {
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/{subcategoryId}/{Page}");
+        SortingText = "Latest";
     }
 
     private async Task GetAllProductsHandler()
     {
         productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+        SortingText = "Latest";
+        searchProduct = string.Empty;
     }
 
     private async Task AppStateChanged(ComponentBase component)
     {
-        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+        if (!isSearched)
+        {
+            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+        }
+        isSearched = false;
         await InvokeAsync(StateHasChanged);
     }
 
     private async Task SearchHandler()
     {
-        if (String.IsNullOrEmpty(search))
+        if (String.IsNullOrEmpty(searchProduct))
         {
             productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/1");
             return;
         }
-        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Search/{search.ToLower()}");
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Search/{searchProduct.ToLower()}");
+    }
+
+    private async Task SearchCategoryHandler()
+    {
+        if (String.IsNullOrEmpty(searchCategory))
+        {
+            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/1");
+            return;
+        }
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SearchByCategory/{searchCategory.ToLower()}");
+    }
+
+    private async Task SortByAlphabetically()
+    {
+        productList = productList.OrderBy(p => p.Title);
+        SortingText = "Alphabetical";
+    }
+    private async Task SortByPriceLow()
+    {
+        productList = productList.OrderBy(p => p.Price);
+        SortingText = "Price: Low to High";
+    }
+    private async Task SortByPriceHigh()
+    {
+        productList = productList.OrderByDescending(p => p.Price);
+        SortingText = "Price: High to Low";
+    }
+
+    private async Task HandleSelectionChange(ChangeEventArgs e)
+    {
+        var selectedCategoryIdAsString = e.Value.ToString();
+
+        isSearched = true;
+        SortingText = "Latest";
+        searchCategory = string.Empty;
+
+        if (String.IsNullOrEmpty(selectedCategoryIdAsString))
+        {
+            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+            return;
+        }
+
+        selectedCategoryId = Guid.Parse(selectedCategoryIdAsString);
+
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/MainCategory/{selectedCategoryId}");
+
+        if (productList.Count() == 0)
+        {
+            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subcategory/{selectedCategoryId}");
+        }
+
+        if (productList.Count() == 0)
+        {
+            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subsubcategory/{selectedCategoryId}");
+        }
     }
 }

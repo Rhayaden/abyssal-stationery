@@ -70,6 +70,30 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ2F0ZWdvcnlcRm9ybS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Category/Subcategory/Form.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ2F0ZWdvcnlcU3ViY2F0ZWdvcnlcRm9ybS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Category/Subcategory/Sub-subcategory/Form.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ2F0ZWdvcnlcU3ViY2F0ZWdvcnlcU3ViLXN1YmNhdGVnb3J5XEZvcm0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Category/Subcategory/Sub-subcategory/Sub-subcategories.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ2F0ZWdvcnlcU3ViY2F0ZWdvcnlcU3ViLXN1YmNhdGVnb3J5XFN1Yi1zdWJjYXRlZ29yaWVzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Category/Subcategory/Sub-subcategory/Sub-subcategoriesNavigator.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ2F0ZWdvcnlcU3ViY2F0ZWdvcnlcU3ViLXN1YmNhdGVnb3J5XFN1Yi1zdWJjYXRlZ29yaWVzTmF2aWdhdG9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Category/Subcategory/Subcategories.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ2F0ZWdvcnlcU3ViY2F0ZWdvcnlcU3ViY2F0ZWdvcmllcy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Category/Subcategory/SubcategoriesNavigator.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ2F0ZWdvcnlcU3ViY2F0ZWdvcnlcU3ViY2F0ZWdvcmllc05hdmlnYXRvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Dashboard.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cRGFzaGJvYXJkLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
@@ -92,6 +116,22 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Products.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxQcm9kdWN0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Sale/EndForm.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxTYWxlXEVuZEZvcm0ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Sale/OnSales.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxTYWxlXE9uU2FsZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Sale/SalesNavigator.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxTYWxlXFNhbGVzTmF2aWdhdG9yLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Sale/StartForm.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxTYWxlXFN0YXJ0Rm9ybS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/User/User.razor]

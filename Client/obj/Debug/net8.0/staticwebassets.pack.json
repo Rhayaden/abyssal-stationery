@@ -29,8 +29,8 @@
       "PackagePath": "staticwebassets\\css\\default.css"
     },
     {
-      "Id": "C:\\Users\\pc\\source\\repos\\Blazor\\Client\\wwwroot\\icon-512.png",
-      "PackagePath": "staticwebassets\\icon-512.png"
+      "Id": "C:\\Users\\pc\\source\\repos\\Blazor\\Client\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
       "Id": "C:\\Users\\pc\\source\\repos\\Blazor\\Client\\wwwroot\\images\\auth.jpg",

@@ -1,0 +1,176 @@
+﻿@page "/admin/subcategories/add"
+@page "/admin/subcategories/edit/{Id:guid}"
+@layout AdminLayout
+@inject IToastService toastService
+
+<div class="flex flex-col justify-start mt-20 items-center h-screen">
+	<h3 class="mt-20 font-bold text-2xl">@action Subcategory</h3>
+	<EditForm Model=@subcategoryDTO OnValidSubmit="SubmitHandler" class="bg-transparent rounded px-8 pt-6 pb-8 mb-4 w-full">
+		<DataAnnotationsValidator />
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+				Name
+			</label>
+			<input @bind="@subcategoryDTO.Name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="name" type="text">
+			<ValidationMessage For='@(()=>@subcategoryDTO.Name)' />
+		</div>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="category">
+				Main Category
+			</label>
+			<select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" @bind="selectedCategoryId">
+				@if (categoryList == null)
+				{
+					<option selected value="">None</option>
+				}
+				@if (action != "Edit")
+				{
+					<option selected value="">Select a Subcategory</option>
+				}
+				@foreach (var category in categoryList)
+				{
+					@if (subcategoryDTO.CategoryId == category.Id)
+					{
+						<option selected value="@category.Id">@category.Name</option>
+						continue;
+					}
+					<option value="@category.Id">@category.Name</option>
+				}
+			</select>
+		</div>
+		<div class="flex items-center justify-between">
+			<button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+				@action Subcategory
+			</button>
+		</div>
+	</EditForm>
+</div>
+
+@code {
+	[Inject]
+	HttpClient Client { get; set; }
+
+	[Inject]
+	ILocalStorageService localStorageService { get; set; }
+
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+
+	[Inject]
+	AppStateManager appStateManager { get; set; }
+
+	[CascadingParameter]
+	public Task<AuthenticationState> AuthState { get; set; }
+
+	[Parameter]
+	public Guid Id { get; set; }
+
+	private SubcategoryDTO subcategoryDTO = new();
+
+	private IEnumerable<CategoryDTO> categoryList = new List<CategoryDTO>();
+
+	private Guid selectedCategoryId { get; set; }
+
+	private string action = "Add";
+
+	private string url { get; set; }
+
+	private bool? isAdmin { get; set; }
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			appStateManager.OnFormChanged += async component => await AppStateChanged(component);
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		var authState = await AuthState;
+		var isAdmin = await localStorageService.GetItemAsStringAsync("isAdmin");
+		if (authState.User.Identity.IsAuthenticated && isAdmin == "true")
+		{
+			var emailInClaims = authState.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email).Value.ToString();
+			var trimmedEmail = emailInClaims.Trim('"');
+			var data = await Client.GetServiceResponseAsync<bool>($"api/Admin/Check/{trimmedEmail}");
+			if (data == false)
+			{
+				navigationManager.NavigateTo("/");
+			}
+		}
+		else
+		{
+			navigationManager.NavigateTo("/");
+		}
+
+		categoryList = await Client.GetServiceResponseAsync<IEnumerable<CategoryDTO>>($"api/Category/Get");
+
+		if (Id != Guid.Empty)
+		{
+			subcategoryDTO = await Client.GetServiceResponseAsync<SubcategoryDTO>($"api/Subcategory/Get/{Id}");
+			action = "Edit";
+			selectedCategoryId = subcategoryDTO.CategoryId;
+		}
+	}
+
+	protected async Task SubmitHandler()
+	{
+
+		url = "api/Subcategory/Update";
+		SubcategoryDTO data = null;
+
+		if (subcategoryDTO.Id == Guid.Empty)
+		{
+			url = "api/Subcategory/Create";
+			if (String.IsNullOrEmpty(subcategoryDTO.Name))
+			{
+				toastService.ShowError("Name required");
+				return;
+			}
+		}
+
+		if (selectedCategoryId == Guid.Empty)
+		{
+			toastService.ShowError("Please select a category");
+			return;
+		}
+
+		subcategoryDTO.CategoryId = selectedCategoryId;
+
+		data = await Client.PostServiceResponseAsync<SubcategoryDTO, SubcategoryDTO>(url, subcategoryDTO);
+
+		if (url == "api/Subcategory/Create")
+		{
+			Sub_subcategoryDTO subSubcategoryData = null;
+
+			var subSubcategoryDTO = new Sub_subcategoryDTO()
+				{
+					Name = subcategoryDTO.Name,
+					SubcategoryId = data.Id,
+				};
+
+			subSubcategoryData = await Client.PostServiceResponseAsync<Sub_subcategoryDTO, Sub_subcategoryDTO>("api/Sub_subcategory/Create", subSubcategoryDTO);
+		}
+
+		if (data != null)
+		{
+			if (action == "Edit")
+			{
+				toastService.ShowSuccess("Subcategory updated!");
+			}
+			else
+			{
+				toastService.ShowSuccess("Added New Subcategory");
+			}
+			navigationManager.NavigateTo("/admin/subcategories");
+		}
+	}
+	private async Task AppStateChanged(ComponentBase component)
+	{
+		action = "Add";
+		selectedCategoryId = Guid.Empty;
+		subcategoryDTO = new();
+		await InvokeAsync(StateHasChanged);
+	}
+}

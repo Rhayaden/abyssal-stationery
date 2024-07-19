@@ -1,10 +1,8 @@
-﻿using Blazor.Server.Services;
-using Blazor.Server.Services.IServices;
+﻿using Blazor.Server.Services.IServices;
 using Blazor.Shared.DTOs;
 using Blazor.Shared.ResponseModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace Blazor.Server.Controllers
 {
@@ -26,12 +24,52 @@ namespace Blazor.Server.Controllers
                 Data = await _productService.Count(),
             };
         }
-        [HttpGet("Search/{input}")]
+		[HttpGet("CountOnSales")]
+		public async Task<ServiceResponse<int>> CountOnSales()
+		{
+			return new ServiceResponse<int>()
+			{
+				Data = await _productService.CountOnSales(),
+			};
+		}
+        [HttpPost("CheckSale")]
+        public async Task<ServiceResponse<bool>> CheckSale()
+        {
+            return new ServiceResponse<bool>()
+            {
+                Data = await _productService.CheckSale(),
+            };
+        }
+		[HttpPost("Sale/Start")]
+		public async Task<ServiceResponse<bool>> StartSaleByCategory([FromBody] SaleDTO saleDTO)
+		{
+			return new ServiceResponse<bool>()
+			{
+				Data = await _productService.StartPromotion(saleDTO),
+			};
+		}
+		[HttpPost("Sale/End/{categoryId}")]
+		public async Task<ServiceResponse<bool>> EndSaleByCategory(Guid categoryId)
+		{
+			return new ServiceResponse<bool>()
+			{
+				Data = await _productService.EndPromotion(categoryId),
+			};
+		}
+		[HttpGet("Search/{input}")]
         public async Task<ServiceResponse<IEnumerable<ProductDTO>>> Search(string input)
         {
             return new ServiceResponse<IEnumerable<ProductDTO>>()
             {
                 Data = await _productService.Search(input),
+            };
+        }
+        [HttpGet("SearchByCategory/{input}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> SearchByCategory(string input)
+        {
+            return new ServiceResponse<IEnumerable<ProductDTO>>()
+            {
+                Data = await _productService.SearchByCategory(input),
             };
         }
         [HttpGet("Get")]
@@ -40,6 +78,22 @@ namespace Blazor.Server.Controllers
 			return new ServiceResponse<IEnumerable<ProductDTO>>()
 			{
 				Data = await _productService.Get(),
+			};
+		}
+		[HttpGet("GetAllSales")]
+		public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetAllSales()
+		{
+			return new ServiceResponse<IEnumerable<ProductDTO>>()
+			{
+				Data = await _productService.GetAllSales(),
+			};
+		}
+		[HttpGet("GetAllPromotions")]
+		public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetAllPromotions()
+		{
+			return new ServiceResponse<IEnumerable<ProductDTO>>()
+			{
+				Data = await _productService.GetAllPromotions(),
 			};
 		}
 		[HttpGet("GetPage/{pageNumber}")]
@@ -51,6 +105,24 @@ namespace Blazor.Server.Controllers
 				Data = await _productService.GetByPage(pageNumber),
 			};
 		}
+        [HttpGet("GetOnSales/{pageNumber}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetOnSales(int pageNumber)
+        {
+
+            return new ServiceResponse<IEnumerable<ProductDTO>>()
+            {
+                Data = await _productService.GetOnSales(pageNumber),
+            };
+        }
+		[HttpGet("GetPromotions/{pageNumber}")]
+		public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetPromotions(int pageNumber)
+		{
+
+			return new ServiceResponse<IEnumerable<ProductDTO>>()
+			{
+				Data = await _productService.GetPromotions(pageNumber),
+			};
+		}
 		[HttpGet("Get/{productId}")]
 		public async Task<ServiceResponse<ProductDTO>> GetById(Guid productId)
 		{
@@ -60,12 +132,36 @@ namespace Blazor.Server.Controllers
 			};
 		}
 
-        [HttpGet("Get/Category/{categoryId}")]
-        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetByCategory(Guid categoryId)
+        [HttpGet("Get/Subcategory/{subcategoryId}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetBySubcategory(Guid subcategoryId)
         {
             return new ServiceResponse<IEnumerable<ProductDTO>>()
             {
-                Data = await _productService.GetByCategory(categoryId),
+                Data = await _productService.GetBySubcategory(subcategoryId),
+            };
+        }
+        [HttpGet("Get/{subcategoryId}/{pageNumber}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetBySubcategoryByPage(Guid subcategoryId, int pageNumber)
+        {
+            return new ServiceResponse<IEnumerable<ProductDTO>>()
+            {
+                Data = await _productService.GetBySubcategoryByPage(subcategoryId, pageNumber),
+            };
+        }
+        [HttpGet("Get/MainCategory/{categoryId}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetByMainCategory(Guid categoryId)
+        {
+            return new ServiceResponse<IEnumerable<ProductDTO>>()
+            {
+                Data = await _productService.GetByMainCategory(categoryId),
+            };
+        }
+        [HttpGet("Get/Subsubcategory/{subSubcategoryId}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetBySubsubcategory(Guid subSubcategoryId)
+        {
+            return new ServiceResponse<IEnumerable<ProductDTO>>()
+            {
+                Data = await _productService.GetBySubsubcategory(subSubcategoryId),
             };
         }
 

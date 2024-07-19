@@ -6,5 +6,6 @@
 		public string Name { get; set; }
 		public ICollection<ProductDTO>? Products { get; set; }
 		public DateTime UpdatedAt { get; set; } = DateTime.Now;
+		public ICollection<SubcategoryDTO>? Subcategories { get; set; } = new List<SubcategoryDTO>();
 	}
 }

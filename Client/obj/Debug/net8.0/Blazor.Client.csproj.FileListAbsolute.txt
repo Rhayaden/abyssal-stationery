@@ -1074,7 +1074,6 @@ C:\Users\pc\source\repos\Blazor\Client\obj\Debug\net8.0\Blazor.Client.dll
 C:\Users\pc\source\repos\Blazor\Client\obj\Debug\net8.0\refint\Blazor.Client.dll
 C:\Users\pc\source\repos\Blazor\Client\obj\Debug\net8.0\Blazor.Client.pdb
 C:\Users\pc\source\repos\Blazor\Client\obj\Debug\net8.0\ref\Blazor.Client.dll
-C:\Users\pc\source\repos\Blazor\Client\bin\Debug\net8.0\libman.json
 C:\Users\pc\source\repos\Blazor\Client\bin\Debug\net8.0\wwwroot\_framework\Blazored.Modal.wasm
 C:\Users\pc\source\repos\Blazor\Client\bin\Debug\net8.0\wwwroot\_framework\Blazored.Modal.wasm.gz
 C:\Users\pc\source\repos\Blazor\Client\bin\Debug\net8.0\Blazored.Modal.dll

@@ -2,32 +2,51 @@
 @layout EmptyLayout
 @inject IToastService toastService
 
-<div class="w-full flex justify-center items-center">
-	<div class="w-full flex justify-center bg-transparent">
-		<div class="flex flex-col justify-center items-center mt-20">
-			<h3 class="font-bold text-2xl" style="font-family:Pacifico">Abyss</h3>
-			<EditForm Model=@request OnValidSubmit="SubmitHandler" class="bg-transparent rounded px-8 pt-6 pb-8 mb-4 mx-10 w-full">
-				<DataAnnotationsValidator />
-				<div class="mb-4">
-					<label class="block text-gray-700 text-sm font-bold mb-2" for="email">
-						Email Address
-					</label>
-					<input @bind="@request.Email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="name@example.com">
-				</div>
-				<div class="mb-6">
-					<label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-						Password
-					</label>
-					<input @bind="@request.Password" class="shadow appearance-none border border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="********">
-				</div>
-				<div class="flex items-center justify-between">
-					<button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-						Sign In
-					</button>
-				</div>
-			</EditForm>
-		</div>
-	</div>
+<div class="bg-gradient-to-r from-indigo-800 via-indigo-600 to-indigo-500 text-gray-800 h-screen flex items-center">
+    <div class="max-w-md w-2/4 flex justify-center items-center bg-gray-100 w-3/4 h-screen shadow-lg mx-auto">
+		<EditForm Model=@request OnValidSubmit="SubmitHandler" class="w-3/4 p-6">
+			<DataAnnotationsValidator />
+            <div class="mb-12 text-center">
+				<h3 class="font-bold text-3xl text-indigo-800" style="font-family:Pacifico">Abyss</h3>
+            </div>
+            <div>
+                <div class="relative flex items-center">
+                    <input @bind="@request.Email" type="email" required
+                           class="bg-transparent w-full font-semibold text-gray-800 border-b border-indigo-600 focus:border-indigo-800 px-2 py-3 outline-none placeholder:text-gray-800"
+                           placeholder="Email Address" />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="#333" stroke="#333" class="w-[18px] h-[18px] absolute right-2"
+                         viewBox="0 0 682.667 682.667">
+                        <defs>
+                            <clipPath id="a" clipPathUnits="userSpaceOnUse">
+                                <path d="M0 512h512V0H0Z" data-original="#000000"></path>
+                            </clipPath>
+                        </defs>
+                        <g clip-path="url(#a)" transform="matrix(1.33 0 0 -1.33 0 682.667)">
+                            <path fill="none" stroke-miterlimit="10" stroke-width="40"
+                                  d="M452 444H60c-22.091 0-40-17.909-40-40v-39.446l212.127-157.782c14.17-10.54 33.576-10.54 47.746 0L492 364.554V404c0 22.091-17.909 40-40 40Z"
+                                  data-original="#000000"></path>
+                            <path d="M472 274.9V107.999c0-11.027-8.972-20-20-20H60c-11.028 0-20 8.973-20 20V274.9L0 304.652V107.999c0-33.084 26.916-60 60-60h392c33.084 0 60 26.916 60 60v196.653Z"
+                                  data-original="#000000"></path>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="relative flex items-center">
+                    <input @bind="@request.Password" type="password" required
+						   class="bg-transparent w-full font-semibold text-gray-800 border-b border-indigo-600 focus:border-indigo-800 px-2 py-3 outline-none placeholder:text-gray-800"
+                           placeholder="Password" />
+					<svg xmlns="http://www.w3.org/2000/svg" fill="#333" stroke="#333" class="w-[18px] h-[18px] absolute right-2" viewBox="0 0 512 512"><path d="M336 352c97.2 0 176-78.8 176-176S433.2 0 336 0S160 78.8 160 176c0 18.7 2.9 36.8 8.3 53.7L7 391c-4.5 4.5-7 10.6-7 17l0 80c0 13.3 10.7 24 24 24l80 0c13.3 0 24-10.7 24-24l0-40 40 0c13.3 0 24-10.7 24-24l0-40 40 0c6.4 0 12.5-2.5 17-7l33.3-33.3c16.9 5.4 35 8.3 53.7 8.3zM376 96a40 40 0 1 1 0 80 40 40 0 1 1 0-80z" /></svg>
+                </div>
+            </div>
+            <div class="mt-12">
+                <button type="submit"
+                        class="w-full py-2.5 px-4 text-sm font-semibold tracking-wider rounded-full text-white bg-indigo-600 hover:bg-indigo-800 focus:outline-none">
+                    Sign in
+                </button>
+            </div>
+        </EditForm>
+    </div>
 </div>
 
 @code {

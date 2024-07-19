@@ -3,8 +3,8 @@
 @layout AdminLayout
 @inject IToastService toastService
 
-	<div class="flex flex-col justify-start mt-20 items-center">
-		<h3 class="mt-20 font-bold text-2xl">@action Category</h3>
+	<div class="flex flex-col justify-start mt-20 items-center h-screen">
+		<h3 class="mt-20 font-bold text-2xl">@action Main Category</h3>
 	<EditForm Model=@categoryDTO OnValidSubmit="SubmitHandler" class="bg-transparent rounded px-8 pt-6 pb-8 mb-4 w-full">
 				<DataAnnotationsValidator />
 				<div class="mb-4">
@@ -36,6 +36,9 @@
 	[Inject]
 	NavigationManager navigationManager { get; set; }
 
+	[Inject]
+	AppStateManager appStateManager { get; set; }
+
 	[CascadingParameter]
 	public Task<AuthenticationState> AuthState { get; set; }
 
@@ -49,6 +52,14 @@
 	private string url { get; set; }
 
 	private bool? isAdmin { get; set; }
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			appStateManager.OnFormChanged += async component => await AppStateChanged(component);
+		}
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -106,5 +117,11 @@
 			}
 			navigationManager.NavigateTo("/admin/categories");
 		}
+	}
+	private async Task AppStateChanged(ComponentBase component)
+	{
+		action = "Add";
+		categoryDTO = new();
+		await InvokeAsync(StateHasChanged);
 	}
 }

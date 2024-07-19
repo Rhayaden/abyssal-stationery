@@ -1,18 +1,28 @@
 ﻿@inject IJSRuntime JS;
 
-<header>
+<header class="border-b shadow-lg z-50">
     <nav class="relative container mx-auto p-6 bg-transparent">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-20">
-                <a href="/" class="text-2xl text-indigo-600 font-bold" style="font-family:Pacifico">Abyss</a>
-                <div class="hidden space-x-8 font-bold lg:flex">
+                <a href="/" class="text-4xl pl-8 sm:pl-0 text-indigo-600 font-bold" style="font-family:Pacifico">Abyss</a>
+                <div class="hidden space-x-8 font-bold text-xl lg:flex">
                     <a href="/products" class="text-indigo-600 hover:text-indigo-500">Products</a>
                 </div>
             </div>
+            @if (isUser == "true")
+            {
+                <a href="/cart" class="inline-flex lg:hidden justify-center items-center text-indigo-600 text-lg hover:text-indigo-800">
+                    <svg class="stroke-indigo-600 w-6 h-6 inline-flex hover:stroke-indigo-500" viewBox="0 0 22 22" fill="none"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.7394 17.875C10.7394 18.6344 10.1062 19.25 9.32511 19.25C8.54402 19.25 7.91083 18.6344 7.91083 17.875M16.3965 17.875C16.3965 18.6344 15.7633 19.25 14.9823 19.25C14.2012 19.25 13.568 18.6344 13.568 17.875M4.1394 5.5L5.46568 12.5908C5.73339 14.0221 5.86724 14.7377 6.37649 15.1605C6.88573 15.5833 7.61377 15.5833 9.06984 15.5833H15.2379C16.6941 15.5833 17.4222 15.5833 17.9314 15.1605C18.4407 14.7376 18.5745 14.0219 18.8421 12.5906L19.3564 9.84059C19.7324 7.82973 19.9203 6.8243 19.3705 6.16215C18.8207 5.5 17.7979 5.5 15.7522 5.5H4.1394ZM4.1394 5.5L3.66797 2.75"
+                              stroke="" stroke-width="1.6" stroke-linecap="round" />
+                    </svg><div class="inline-flex justify-center items-center mb-6 w-6 h-6 rounded-full text-white bg-indigo-600 hover:bg-indigo-500">@quantity</div>
+                </a>
+            }
             <button type="button" class="block lg:hidden focus:outline-none text-indigo-600" id="menu-btn">
                 <svg class="w-6 h-6" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z" /></svg>
             </button>
-            <div id="menu" class="absolute hidden w-full py-6 bg-indigo-600 left-0 right-0 top-20 z-10">
+            <div id="menu" class="absolute hidden w-full py-6 bg-indigo-600 left-0 right-0 top-20 z-30 shadow-2xl">
                 <div class="flex flex-col justify-center items-center w-full space-y-6 font-semibold text-white rounded-sm">
                     <AuthorizeView>
                         <Authorized>
@@ -21,9 +31,14 @@
                                 <div class="space-y-4 flex flex-col justify-center items-center hover:text-indigo-600">
                                     <a href="/products" onclick="navToggle" class="text-white hover:text-indigo-200">Products</a>
                                     <a href="/orders" class="text-white hover:text-indigo-200">Orders</a>
-                                    <a href="/cart" onclick="navToggle" class="text-white hover:text-indigo-200">Cart (@quantity)</a>
                                 </div>
-                                <a href="/logout" onclick="navToggle" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Logout</a>
+                                <a href="/logout" onclick="navToggle" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">
+                                    Logout
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white inline-flex pl-1 transition duration-75 group-hover:text-indigo-600"
+                                         fill="currentColor" viewBox="0 0 512 512">
+                                        <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
+                                    </svg>
+                                </a>
                             }
                             @if (isAdmin == "true")
                             {
@@ -35,7 +50,8 @@
                             <div class="hover:text-indigo-600">
                                 <a href="/signin" class="text-white hover:text-indigo-200">Sign In</a>
                             </div>
-                            <a href="/signup" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Sign Up</a>
+                            <a href="/signup" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Sign Up <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white inline-flex pl-1 transition duration-75 group-hover:text-indigo-600"
+                                         fill="currentColor" viewBox="0 0 512 512"><path d="M217.9 105.9L340.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L217.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1L32 320c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM352 416l64 0c17.7 0 32-14.3 32-32l0-256c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l64 0c53 0 96 43 96 96l0 256c0 53-43 96-96 96l-64 0c-17.7 0-32-14.3-32-32s14.3-32 32-32z" /></svg></a>
                         </NotAuthorized>
                     </AuthorizeView>
                 </div>
@@ -45,11 +61,23 @@
                     <Authorized>
                         @if (isUser == "true")
                         {
-                            <div class="space-x-8 hover:text-indigo-600">
-                                <a href="/orders" class="text-indigo-600 hover:text-indigo-500">Orders</a>
-                                <a href="/cart" class="text-indigo-600 hover:text-indigo-500">Cart (@quantity)</a>
+                            <div class="space-x-6 hover:text-indigo-600 flex justify-center items-center">
+                                <a href="/orders" class="text-indigo-600 text-lg hover:text-indigo-500">Orders</a>
+                                <a href="/cart" class="inline-flex justify-center items-center text-indigo-600 text-lg hover:text-indigo-800">
+                                    <svg class="stroke-indigo-600 w-6 h-6 inline-flex hover:stroke-indigo-500" viewBox="0 0 22 22" fill="none"
+                                         xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10.7394 17.875C10.7394 18.6344 10.1062 19.25 9.32511 19.25C8.54402 19.25 7.91083 18.6344 7.91083 17.875M16.3965 17.875C16.3965 18.6344 15.7633 19.25 14.9823 19.25C14.2012 19.25 13.568 18.6344 13.568 17.875M4.1394 5.5L5.46568 12.5908C5.73339 14.0221 5.86724 14.7377 6.37649 15.1605C6.88573 15.5833 7.61377 15.5833 9.06984 15.5833H15.2379C16.6941 15.5833 17.4222 15.5833 17.9314 15.1605C18.4407 14.7376 18.5745 14.0219 18.8421 12.5906L19.3564 9.84059C19.7324 7.82973 19.9203 6.8243 19.3705 6.16215C18.8207 5.5 17.7979 5.5 15.7522 5.5H4.1394ZM4.1394 5.5L3.66797 2.75"
+                                              stroke="" stroke-width="1.6" stroke-linecap="round" />
+                                    </svg><div class="inline-flex justify-center items-center mb-6 w-6 h-6 rounded-full text-white bg-indigo-600 hover:bg-indigo-500">@quantity</div>
+                                </a>
                             </div>
-                            <a href="/logout" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Logout</a>
+                            <a href="/logout" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">
+                                Logout
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white inline-flex pl-1 transition duration-75 group-hover:text-indigo-600"
+                                     fill="currentColor" viewBox="0 0 512 512">
+                                    <path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z" />
+                                </svg>
+                            </a>
                         }
                         @if(isAdmin == "true")
                         {
@@ -60,7 +88,13 @@
                         <div class="hover:text-indigo-600">
                             <a href="/signin" class="text-indigo-600 hover:text-indigo-500">Sign In</a>
                         </div>
-                        <a href="/signup" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">Sign Up</a>
+                        <a href="/signup" class="px-8 py-3 font-bold text-white bg-indigo-600 rounded-full hover:opacity-90">
+                            Sign Up
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white inline-flex pl-1 transition duration-75 group-hover:text-indigo-600"
+                                 fill="currentColor" viewBox="0 0 512 512">
+                                <path d="M217.9 105.9L340.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L217.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1L32 320c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM352 416l64 0c17.7 0 32-14.3 32-32l0-256c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l64 0c53 0 96 43 96 96l0 256c0 53-43 96-96 96l-64 0c-17.7 0-32-14.3-32-32s14.3-32 32-32z" />
+                            </svg>
+                        </a>
                     </NotAuthorized>
                 </AuthorizeView>
             </div>

@@ -111,5 +111,19 @@ namespace Blazor.Server.Services
 			}
 			return _mapper.Map<CartDTO>(cart);
 		}
-	}
+
+		public async Task<CartDTO> Update(Guid userId, ProductInCartDTO productDTO)
+		{
+            var cart = await _dbContext.Carts.Include("Products").FirstOrDefaultAsync(c => c.UserId == userId);
+            if (cart != null)
+            {
+                var productsInCarts = await _dbContext.ProductsInCarts.FirstOrDefaultAsync(p => p.CartId == cart.Id && p.ProductId == productDTO.ProductId);
+                cart.Total = cart.Total - productsInCarts.Price * productDTO.Quantity + productDTO.Price * productDTO.Quantity;
+                productsInCarts.Price = productDTO.Price;
+
+                await _dbContext.SaveChangesAsync();
+            }
+            return _mapper.Map<CartDTO>(cart);
+        }
+    }
 }

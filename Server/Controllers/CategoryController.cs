@@ -1,4 +1,5 @@
-﻿using Blazor.Server.Services.IServices;
+﻿using Blazor.Server.Services;
+using Blazor.Server.Services.IServices;
 using Blazor.Shared.DTOs;
 using Blazor.Shared.ResponseModels;
 using Microsoft.AspNetCore.Authorization;
@@ -24,6 +25,14 @@ namespace Blazor.Server.Controllers
                 Data = await _categoryService.Count(),
             };
         }
+        [HttpGet("Search/{input}")]
+        public async Task<ServiceResponse<IEnumerable<CategoryDTO>>> Search(string input)
+        {
+            return new ServiceResponse<IEnumerable<CategoryDTO>>()
+            {
+                Data = await _categoryService.Search(input),
+            };
+        }
         [HttpGet("Get")]
 		public async Task<ServiceResponse<IEnumerable<CategoryDTO>>> Get()
 		{
@@ -47,8 +56,7 @@ namespace Blazor.Server.Controllers
 			{
 				Data = await _categoryService.GetByID(categoryId),
 			};
-		}
-
+		}  
 		[Authorize]
 		[HttpPost("Create")]
 		public async Task<ServiceResponse<CategoryDTO>> Create([FromBody] CategoryDTO categoryDTO)

@@ -40,7 +40,15 @@ namespace Blazor.Server.Controllers
 				Data = await _cartService.Remove(userId, productDTO, quantity)
 			};
 		}
-		[HttpPost("Clear/{userId}")]
+        [HttpPost("Update/{userId}")]
+        public async Task<ServiceResponse<CartDTO>> Update(Guid userId, [FromBody] ProductInCartDTO productDTO)
+        {
+            return new ServiceResponse<CartDTO>()
+            {
+                Data = await _cartService.Update(userId, productDTO)
+            };
+        }
+        [HttpPost("Clear/{userId}")]
 		public async Task<ServiceResponse<CartDTO>> Clear(Guid userId)
 		{
 			return new ServiceResponse<CartDTO>()

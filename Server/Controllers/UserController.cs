@@ -48,7 +48,7 @@ namespace Blazor.Server.Controllers
 				Data = await _userService.GetByID(userId),
 			};
 		}
-		[AllowAnonymous]
+        [AllowAnonymous]
 		[HttpPost("Create")]
 		public async Task<ServiceResponse<UserDTO>> Create([FromBody] UserDTO userDTO)
 		{

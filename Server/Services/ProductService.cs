@@ -24,7 +24,11 @@ namespace Blazor.Server.Services
         {
             return await _dbContext.Products.CountAsync();
         }
-        public async Task<ProductDTO> Create(ProductDTO productDTO)
+		public async Task<int> CountOnSales()
+		{
+			return await _dbContext.Products.Where(p => p.OnSale == true).CountAsync();
+		}
+		public async Task<ProductDTO> Create(ProductDTO productDTO)
 		{
 			var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productDTO.Id);
 			if (product != null)
@@ -56,18 +60,28 @@ namespace Blazor.Server.Services
 
 		public async Task<IEnumerable<ProductDTO>> Get()
 		{
-			return await _dbContext.Products.Include(p => p.Category).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			return await _dbContext.Products.Include(p => p.Subsubcategory).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
 		}
 
 		public async Task<IEnumerable<ProductDTO>> GetByPage(int page)
 		{
 			int skip = (page - 1) * _size;
-			return await _dbContext.Products.Include(p => p.Category).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			return await _dbContext.Products.Include(p => p.Subsubcategory).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
 		}
 
-		public async Task<IEnumerable<ProductDTO>> GetByCategory(Guid categoryId)
+		public async Task<IEnumerable<ProductDTO>> GetBySubcategory(Guid subcategoryId)
         {
-            return await _dbContext.Products.Where(p => p.CategoryId == categoryId).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.SubcategoryId == subcategoryId).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+        }
+
+        public async Task<IEnumerable<ProductDTO>> GetByMainCategory(Guid categoryId)
+        {
+            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.Subcategory.CategoryId == categoryId).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+        }
+
+        public async Task<IEnumerable<ProductDTO>> GetBySubsubcategory(Guid subSubcategoryId)
+        {
+            return await _dbContext.Products.Where(p => p.SubsubcategoryId == subSubcategoryId).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         public async Task<ProductDTO> GetByID(Guid productId)
@@ -93,9 +107,24 @@ namespace Blazor.Server.Services
 			product.Title = productDTO.Title;
 			product.Description = productDTO.Description;
 			product.Image = productDTO.Image;
-			product.CategoryId = productDTO.CategoryId;
+			product.SubsubcategoryId = productDTO.SubsubcategoryId;
 			product.Price = productDTO.Price;
-			if(product.Stock == productDTO.Stock)
+			product.OnSale = productDTO.OnSale;
+            if (!product.OnSale)
+            {
+                product.Discount = null;
+                product.SalePrice = null;
+                product.DurationHour = null;
+                product.SaleStartedAt = null;
+            }
+			else
+			{
+                product.Discount = productDTO.Discount;
+                product.SalePrice = productDTO.SalePrice;
+                product.DurationHour = productDTO.DurationHour;
+                product.SaleStartedAt = DateTime.Now;
+            }
+			if(product.OnSale != productDTO.OnSale || product.Stock == productDTO.Stock)
 			{
 				product.UpdatedAt = DateTime.Now;
 			}
@@ -105,5 +134,102 @@ namespace Blazor.Server.Services
 
 			return _mapper.Map<ProductDTO>(product);
 		}
-	}
+
+        public async Task<IEnumerable<ProductDTO>> GetOnSales(int page)
+        {
+            int skip = (page - 1) * _size;
+            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.OnSale == true).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+        }
+
+        public async Task<bool> CheckSale()
+        {
+            var productsOnSale = await _dbContext.Products.Where(p => p.OnSale == true).OrderByDescending(p => p.UpdatedAt).ToListAsync();
+			foreach(var product in productsOnSale)
+			{
+				DateTime startTime = (DateTime)product.SaleStartedAt;
+				DateTime endTime = startTime.AddHours((double)product.DurationHour);
+                if (DateTime.Now > endTime)
+                {
+                    product.OnSale = false;
+                    product.Discount = null;
+                    product.SalePrice = null;
+                    product.DurationHour = null;
+                    product.SaleStartedAt = null;
+                }
+				await _dbContext.SaveChangesAsync();
+            }
+            return true;
+        }
+
+		public async Task<IEnumerable<ProductDTO>> GetAllSales()
+		{
+			await CheckSale();
+			return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.OnSale == true).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+		}
+
+		public async Task<IEnumerable<ProductDTO>> GetAllPromotions()
+		{
+			await CheckSale();
+			return await _dbContext.Products.Include(p => p.Subsubcategory.Subcategory).Where(p => p.Subsubcategory.Subcategory.ActivePromotion == true).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+		}
+		public async Task<bool> StartPromotion(SaleDTO saleDTO)
+		{
+			var products = await _dbContext.Products.Include(p => p.Subsubcategory.Subcategory).Where(p => p.Subsubcategory.Subcategory.Id == saleDTO.CategoryId).ToListAsync();
+			if(products.Count == 0)
+			{
+				return false;
+			}
+			foreach (var product in products)
+			{
+				product.OnSale = true;
+				product.Discount = saleDTO.Discount;
+				product.SalePrice = product.Price * (100 - saleDTO.Discount) / 100;
+				product.DurationHour = saleDTO.Duration;
+				product.SaleStartedAt = DateTime.Now;
+				product.UpdatedAt = DateTime.Now;
+
+				await _dbContext.SaveChangesAsync();
+			}
+
+			return true;
+		}
+
+		public async Task<bool> EndPromotion(Guid categoryId)
+		{
+			var products = await _dbContext.Products.Include(p => p.Subsubcategory.Subcategory).Where(p => p.Subsubcategory.Subcategory.Id == categoryId).ToListAsync();
+			if (products.Count == 0)
+			{
+				return false;
+			}
+			foreach (var product in products)
+			{
+				product.OnSale = false;
+				product.Discount = null;
+				product.SalePrice = null;
+				product.DurationHour = null;
+				product.SaleStartedAt = null;
+
+				await _dbContext.SaveChangesAsync();
+			}
+
+			return true;
+		}
+
+        public async Task<IEnumerable<ProductDTO>> SearchByCategory(string input)
+        {
+            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.Name.ToLower().Contains(input)).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+        }
+
+		public async Task<IEnumerable<ProductDTO>> GetPromotions(int page)
+		{
+			int skip = (page - 1) * _size;
+			return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.Subcategory.ActivePromotion == true).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+		}
+
+        public async Task<IEnumerable<ProductDTO>> GetBySubcategoryByPage(Guid subcategoryId, int page)
+        {
+            int skip = (page - 1) * _size;
+            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.Subcategory.Id == subcategoryId).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+        }
+    }
 }

@@ -1,0 +1,10 @@
+﻿@page "/admin/subcategories"
+
+@code {
+	[Inject]
+	NavigationManager navigationManager { get; set; }
+	protected override void OnInitialized()
+	{
+		navigationManager.NavigateTo("/admin/subcategories/page/1");
+	}
+}

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "UMco10fJSkKC0fNJfhmy7HzTJ/WqmBhLuT7wkCgtjl0=",
+  "Hash": "rIkYITxpgNNZKAvSwhP+JkvLF3hGrPlthrcYTeKGbW4=",
   "Source": "Blazor.Client",
   "BasePath": "/",
   "Mode": "Root",
@@ -8339,12 +8339,12 @@
       "OriginalItemSpec": "wwwroot\\css\\default.css"
     },
     {
-      "Identity": "C:\\Users\\pc\\source\\repos\\Blazor\\Client\\wwwroot\\icon-512.png",
+      "Identity": "C:\\Users\\pc\\source\\repos\\Blazor\\Client\\wwwroot\\favicon.ico",
       "SourceId": "Blazor.Client",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\pc\\source\\repos\\Blazor\\Client\\wwwroot\\",
       "BasePath": "/",
-      "RelativePath": "icon-512.png",
+      "RelativePath": "favicon.ico",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -8355,7 +8355,7 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
-      "OriginalItemSpec": "wwwroot\\icon-512.png"
+      "OriginalItemSpec": "wwwroot\\favicon.ico"
     },
     {
       "Identity": "C:\\Users\\pc\\source\\repos\\Blazor\\Client\\wwwroot\\images\\auth.jpg",

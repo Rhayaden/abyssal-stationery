@@ -167,5 +167,4 @@ C:\Users\pc\source\repos\Blazor\Server\obj\Debug\net8.0\refint\Blazor.Server.dll
 C:\Users\pc\source\repos\Blazor\Server\obj\Debug\net8.0\Blazor.Server.pdb
 C:\Users\pc\source\repos\Blazor\Server\obj\Debug\net8.0\Blazor.Server.genruntimeconfig.cache
 C:\Users\pc\source\repos\Blazor\Server\obj\Debug\net8.0\ref\Blazor.Server.dll
-C:\Users\pc\source\repos\Blazor\Server\bin\Debug\net8.0\libman.json
 C:\Users\pc\source\repos\Blazor\Server\bin\Debug\net8.0\Blazored.Modal.dll

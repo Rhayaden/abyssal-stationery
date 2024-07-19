@@ -6,11 +6,10 @@ using Blazor.Server.Services.IServices;
 using Blazor.Shared.DTOs;
 using Blazor.Shared.Utilities;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Immutable;
 
 namespace Blazor.Server.Services
 {
-	public class CategoryService : ICategoryService
+    public class CategoryService : ICategoryService
 	{
 		private readonly IMapper _mapper;
 		private readonly AppDbContext _dbContext;
@@ -55,7 +54,7 @@ namespace Blazor.Server.Services
 
 		public async Task<IEnumerable<CategoryDTO>> Get()
 		{
-			return await _dbContext.Categories.OrderBy(c => c.Name).ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			return await _dbContext.Categories.Include(c => c.Subcategories).OrderBy(c => c.Name).ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
 		}
 
 		public async Task<CategoryDTO> GetByID(Guid categoryId)
@@ -68,10 +67,15 @@ namespace Blazor.Server.Services
 		public async Task<IEnumerable<CategoryDTO>> GetByPage(int page)
 		{
 			int skip = (page - 1) * _size;
-			return await _dbContext.Categories.OrderByDescending(c => c.UpdatedAt).Skip(skip).Take(_size).ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			return await _dbContext.Categories.Include(c => c.Subcategories).OrderBy(c => c.Name).Skip(skip).Take(_size).ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
 		}
 
-		public async Task<CategoryDTO> Update(CategoryDTO categoryDTO)
+        public async Task<IEnumerable<CategoryDTO>> Search(string input)
+        {
+            return await _dbContext.Categories.Include(c => c.Subcategories).Where(c => c.Name.ToLower().Contains(input)).OrderByDescending(c => c.Name).ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+        }
+
+        public async Task<CategoryDTO> Update(CategoryDTO categoryDTO)
 		{
 			var category = await _dbContext.Categories.FindAsync(categoryDTO.Id);
 			if (category == null)

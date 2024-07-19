@@ -8,7 +8,9 @@ namespace Blazor.Client.Utilities
 		public event Action<ComponentBase> OnCartUpdated;
 		public event Action<ComponentBase> OnCategoriesChanged;
 		public event Action<ComponentBase> OnProductsChanged;
+		public event Action<ComponentBase> OnFormChanged;
 		public event Action<ComponentBase> OnPageChanged;
+		public event Action<ComponentBase> OnSortingChanged;
 		public void UpdateCartQuantity(ComponentBase componentBase)
 		{
 			OnQuantityChanged?.Invoke(componentBase);
@@ -27,9 +29,18 @@ namespace Blazor.Client.Utilities
 		{
 			OnProductsChanged?.Invoke(componentBase);
 		}
+        public void UpdateForm(ComponentBase componentBase)
+        {
+            OnFormChanged?.Invoke(componentBase);
+        }
         public void UpdatePage(ComponentBase componentBase)
         {
             OnPageChanged?.Invoke(componentBase);
+        }
+
+        public void UpdateSorting(ComponentBase componentBase)
+        {
+            OnSortingChanged?.Invoke(componentBase);
         }
     }
 }

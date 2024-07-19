@@ -6,5 +6,6 @@
 		public string Name { get; set; }
 		public ICollection<Product> Products { get; set; } = new List<Product>();
 		public DateTime UpdatedAt { get; set; }
+		public ICollection<Subcategory> Subcategories { get; set; } = new List<Subcategory>();
 	}
 }

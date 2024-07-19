@@ -16,8 +16,13 @@ namespace Blazor.Shared.DTOs
 		[Range(0, 1000, ErrorMessage = "Stock cannot be less than 1 or more than 1000")]
 		public int Stock { get; set; }
 		[Required]
-		public Guid CategoryId { get; set; }
-		public CategoryDTO? Category { get; set; }
+		public Guid SubsubcategoryId { get; set; }
+		public Sub_subcategoryDTO? Subsubcategory { get; set; }
 		public DateTime UpdatedAt { get; set; } = DateTime.Now;
-	}
+        public bool OnSale { get; set; } = false;
+		public int? Discount { get; set; }
+		public decimal? SalePrice { get; set; }
+		public int? DurationHour { get; set; }
+        public DateTime? SaleStartedAt { get; set; }
+    }
 }

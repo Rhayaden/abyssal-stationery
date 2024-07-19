@@ -4,7 +4,7 @@
 @if (orderDTO.Products != null)
 {
 
-    <div class="w-full max-w-7xl px-4 md:px-5 lg-6 mx-auto mb-20">
+    <div class="w-full max-w-7xl px-4 md:px-5 mt-6 lg-6 mx-auto mb-20">
     <a href="/orders" class="text-indigo-600 hover:text-indigo-500 text-lg font-semibold">&#8592; All Orders</a>
         <h2 class="font-manrope font-bold text-4xl leading-10 text-black text-center" style="font-family:Pacifico">Abyss</h2>
         <p class="mt-4 font-normal text-lg leading-8 text-gray-500 mb-11 text-center">
@@ -53,9 +53,18 @@
                                             <p class="font-medium text-sm leading-7 text-black">
                                                 Status
                                             </p>
-                                            <p class="font-medium text-sm leading-6 whitespace-nowrap py-0.5 px-3 rounded-full lg:mt-3 bg-emerald-50 text-emerald-600">
-                                                Ready for Delivery
-                                            </p>
+                                            @if (DateTime.Now < orderDTO.CreateDate.AddDays(3))
+                                            {
+                                                <p class="font-medium text-sm leading-6 whitespace-nowrap py-0.5 px-3 rounded-full lg:mt-3 bg-emerald-50 text-emerald-600">
+                                                    Ready for Delivery
+                                                </p>
+                                            }
+                                            else
+                                            {
+                                                <p class="font-medium text-sm leading-6 py-0.5 px-3 whitespace-nowrap rounded-full lg:mt-3 bg-indigo-50 text-indigo-600">
+                                                    Dispatched
+                                                </p>
+                                            }
                                         </div>
 
                                     </div>
