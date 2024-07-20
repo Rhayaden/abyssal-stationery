@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Blazor.Client.Pages.Admin.Category.Subcategory;
 using Blazor.Server.Data;
 using Blazor.Server.Models;
 using Blazor.Server.Services.IServices;
@@ -171,5 +172,105 @@ namespace Blazor.Server.Services
             int skip = (page - 1) * _size;
             return await _dbContext.Subcategories.Where(s => s.ActivePromotion == true).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<SubcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
-    }
+
+		public async Task<IEnumerable<SubcategoryDTO>> SortBy(int page, string option, string sortingOrder, string selection)
+		{
+			int skip = (page - 1) * _size;
+			IEnumerable<SubcategoryDTO> subcategories = new List<SubcategoryDTO>();
+
+			if(selection == "all")
+			{
+				subcategories = await _dbContext.Subcategories.ProjectTo<SubcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			}
+			else
+			{
+				subcategories = await _dbContext.Subcategories.Where(c => c.ActivePromotion == true).OrderByDescending(c => c.UpdatedAt).ProjectTo<SubcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			}
+
+			var sortedList = SortSwitch(subcategories, page, option, sortingOrder);
+
+			return sortedList;
+		}
+
+		private IEnumerable<SubcategoryDTO> SortSwitch(IEnumerable<SubcategoryDTO> subcategories, int page, string option, string sortingOrder)
+		{
+			int skip = (page - 1) * _size;
+			IEnumerable<SubcategoryDTO> sortedList = new List<SubcategoryDTO>();
+			switch (option.ToLower())
+			{
+				case "name":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subcategories.OrderByDescending(s => s.Name).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subcategories.OrderBy(s => s.Name).Skip(skip).Take(_size);
+					}
+					break;
+				case "maincategory":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subcategories.OrderByDescending(s => s.Category.Name).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subcategories.OrderBy(s => s.Category.Name).Skip(skip).Take(_size);
+					}
+					break;
+				case "promotionname":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subcategories.OrderByDescending(s => s.PromotionName).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subcategories.OrderBy(s => s.PromotionName).Skip(skip).Take(_size);
+					}
+					break;
+				case "discount":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subcategories.OrderByDescending(s => s.PromotionDiscount).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subcategories.OrderBy(s => s.PromotionDiscount).Skip(skip).Take(_size);
+					}
+					break;
+				case "duration":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subcategories.OrderByDescending(s => s.PromotionDurationHour).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subcategories.OrderBy(s => s.PromotionDurationHour).Skip(skip).Take(_size);
+					}
+					break;
+				case "date":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subcategories.OrderByDescending(s => s.UpdatedAt).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subcategories.OrderBy(s => s.UpdatedAt).Skip(skip).Take(_size);
+					}
+					break;
+				case "promotiondate":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subcategories.OrderByDescending(s => s.PromotionStartedAt).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subcategories.OrderBy(s => s.PromotionStartedAt).Skip(skip).Take(_size);
+					}
+					break;
+			}
+
+			return sortedList;
+		}
+	}
 }

@@ -57,7 +57,14 @@ namespace Blazor.Server.Controllers
 				Data = await _orderService.GetByID(orderId),
 			};
 		}
-
+		[HttpGet("SortBy/{option}/{sortingOrder}/{pageNumber}")]
+		public async Task<ServiceResponse<IEnumerable<OrderDTO>>> SortBy(int pageNumber, string option, string sortingOrder)
+		{
+			return new ServiceResponse<IEnumerable<OrderDTO>>()
+			{
+				Data = await _orderService.SortBy(pageNumber, option, sortingOrder),
+			};
+		}
 		[HttpPost("Checkout")]
 		public async Task<ServiceResponse<OrderDTO>> Order(CartDTO cartDTO)
 		{

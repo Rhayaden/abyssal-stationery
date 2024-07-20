@@ -9,6 +9,7 @@ namespace Blazor.Server.Services.IServices
         public Task<IEnumerable<OrderDTO>> GetAll(Guid userId);
         public Task<IEnumerable<OrderDTO>> GetAllByPage(Guid userId, int page);
 		public Task<OrderDTO> GetByID(Guid orderId);
+		public Task<IEnumerable<OrderDTO>> SortBy(int page, string option, string sortingOrder);
 		public Task<OrderDTO> Order(CartDTO cartDTO);
 	}
 }

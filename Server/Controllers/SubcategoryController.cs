@@ -66,7 +66,15 @@ namespace Blazor.Server.Controllers
                 Data = await _subCategoryService.EndPromotion(subcategoryId),
             };
         }
-        [HttpGet("Search/{input}")]
+		[HttpGet("SortBy/{option}/{sortingOrder}/{selection}/{pageNumber}")]
+		public async Task<ServiceResponse<IEnumerable<SubcategoryDTO>>> SortBy(int pageNumber, string option, string sortingOrder, string selection)
+		{
+			return new ServiceResponse<IEnumerable<SubcategoryDTO>>()
+			{
+				Data = await _subCategoryService.SortBy(pageNumber, option, sortingOrder, selection),
+			};
+		}
+		[HttpGet("Search/{input}")]
 		public async Task<ServiceResponse<IEnumerable<SubcategoryDTO>>> Search(string input)
 		{
 			return new ServiceResponse<IEnumerable<SubcategoryDTO>>()

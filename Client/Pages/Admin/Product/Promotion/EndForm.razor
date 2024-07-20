@@ -18,7 +18,7 @@
 				@foreach (var category in categoryList)
 				{
 					<optgroup label="@category.Name">
-						@foreach (var subcategory in category.Subcategories)
+						@foreach (var subcategory in category.Subcategories.Where(s => s.ActivePromotion == true))
 						{
 							<option value="@subcategory.Id">@subcategory.Name</option>
 						}

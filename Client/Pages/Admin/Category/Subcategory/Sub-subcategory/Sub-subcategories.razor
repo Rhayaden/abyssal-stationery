@@ -147,29 +147,29 @@ else
 		Modal.Show<Modal>("", parameters);
 	}
 
-	private void SortByNameHandler()
+	private async Task SortByNameHandler()
 	{
-		subSubcategoryList = subSubcategoryList.OrderBy(s => s.Name);
+		subSubcategoryList = await Client.GetServiceResponseAsync<IEnumerable<Sub_subcategoryDTO>>($"api/Sub_subcategory/SortBy/name/asc/{Page}");
 	}
-	private void SortByNameDescHandler()
+	private async Task SortByNameDescHandler()
 	{
-		subSubcategoryList = subSubcategoryList.OrderByDescending(s => s.Name);
+		subSubcategoryList = await Client.GetServiceResponseAsync<IEnumerable<Sub_subcategoryDTO>>($"api/Sub_subcategory/SortBy/name/desc/{Page}");
 	}
-	private void SortByCategoryNameHandler()
+	private async Task SortByCategoryNameHandler()
 	{
-		subSubcategoryList = subSubcategoryList.OrderBy(s => s.Subcategory.Name);
+		subSubcategoryList = await Client.GetServiceResponseAsync<IEnumerable<Sub_subcategoryDTO>>($"api/Sub_subcategory/SortBy/subcategory/asc/{Page}");
 	}
-	private void SortByCategoryNameDescHandler()
+	private async Task SortByCategoryNameDescHandler()
 	{
-		subSubcategoryList = subSubcategoryList.OrderByDescending(s => s.Subcategory.Name);
+		subSubcategoryList = await Client.GetServiceResponseAsync<IEnumerable<Sub_subcategoryDTO>>($"api/Sub_subcategory/SortBy/subcategory/desc/{Page}");
 	}
-	private void SortByDateHandler()
+	private async Task SortByDateHandler()
 	{
-		subSubcategoryList = subSubcategoryList.OrderBy(s => s.UpdatedAt);
+		subSubcategoryList = await Client.GetServiceResponseAsync<IEnumerable<Sub_subcategoryDTO>>($"api/Sub_subcategory/SortBy/date/asc/{Page}");
 	}
-	private void SortByDateDescHandler()
+	private async Task SortByDateDescHandler()
 	{
-		subSubcategoryList = subSubcategoryList.OrderByDescending(s => s.UpdatedAt);
+		subSubcategoryList = await Client.GetServiceResponseAsync<IEnumerable<Sub_subcategoryDTO>>($"api/Sub_subcategory/SortBy/date/desc/{Page}");
 	}
 
 	private async Task AppStateChanged(ComponentBase component)

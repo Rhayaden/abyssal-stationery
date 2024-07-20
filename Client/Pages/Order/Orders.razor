@@ -107,21 +107,21 @@ else
         orderCount = await Client.GetServiceResponseAsync<int>($"api/Order/Count/{trimmedUserId}");
     }
 
-    private void SortByDateHandler()
+    private async Task SortByDateHandler()
     {
-        orders = orders.OrderBy(o => o.CreateDate);
+        orders = await Client.GetServiceResponseAsync<IEnumerable<OrderDTO>>($"api/Order/SortBy/date/asc/{Page}");
     }
-    private void SortByDateDescHandler()
+    private async Task SortByDateDescHandler()
     {
-        orders = orders.OrderByDescending(o => o.CreateDate);
+        orders = await Client.GetServiceResponseAsync<IEnumerable<OrderDTO>>($"api/Order/SortBy/date/desc/{Page}");
     }
-    private void SortByTotalHandler()
+    private async Task SortByTotalHandler()
     {
-        orders = orders.OrderBy(o => o.Total);
+        orders = await Client.GetServiceResponseAsync<IEnumerable<OrderDTO>>($"api/Order/SortBy/total/asc/{Page}");
     }
-    private void SortByTotalDescHandler()
+    private async Task SortByTotalDescHandler()
     {
-        orders = orders.OrderByDescending(o => o.Total);
+        orders = await Client.GetServiceResponseAsync<IEnumerable<OrderDTO>>($"api/Order/SortBy/total/desc/{Page}");
     }
 
     private async Task PageStateChanged(ComponentBase component)

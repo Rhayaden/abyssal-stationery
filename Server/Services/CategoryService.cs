@@ -75,7 +75,39 @@ namespace Blazor.Server.Services
             return await _dbContext.Categories.Include(c => c.Subcategories).Where(c => c.Name.ToLower().Contains(input)).OrderByDescending(c => c.Name).ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
-        public async Task<CategoryDTO> Update(CategoryDTO categoryDTO)
+		public async Task<IEnumerable<CategoryDTO>> SortBy(int page, string option, string sortingOrder)
+		{
+			int skip = (page - 1) * _size;
+			var categories = await _dbContext.Categories.ProjectTo<CategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			IEnumerable<CategoryDTO> sortedList = new List<CategoryDTO>();
+			switch (option.ToLower())
+			{
+				case "name":
+					if (sortingOrder == "desc")
+					{
+						sortedList = categories.OrderByDescending(c => c.Name).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = categories.OrderBy(c => c.Name).Skip(skip).Take(_size);
+					}
+					break;
+				case "date":
+					if (sortingOrder == "desc")
+					{
+						sortedList = categories.OrderByDescending(c => c.UpdatedAt).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = categories.OrderBy(c => c.UpdatedAt).Skip(skip).Take(_size);
+					}
+					break;
+			}
+
+			return sortedList;
+		}
+
+		public async Task<CategoryDTO> Update(CategoryDTO categoryDTO)
 		{
 			var category = await _dbContext.Categories.FindAsync(categoryDTO.Id);
 			if (category == null)

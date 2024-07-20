@@ -1,4 +1,5 @@
-﻿using Blazor.Server.Services.IServices;
+﻿using Blazor.Server.Services;
+using Blazor.Server.Services.IServices;
 using Blazor.Shared.DTOs;
 using Blazor.Shared.ResponseModels;
 using Microsoft.AspNetCore.Authorization;
@@ -48,6 +49,14 @@ namespace Blazor.Server.Controllers
 				Data = await _userService.GetByID(userId),
 			};
 		}
+        [HttpGet("SortBy/{option}/{sortingOrder}/{pageNumber}")]
+        public async Task<ServiceResponse<IEnumerable<UserDTO>>> SortBy(int pageNumber, string option, string sortingOrder)
+        {
+            return new ServiceResponse<IEnumerable<UserDTO>>()
+            {
+                Data = await _userService.SortBy(pageNumber, option, sortingOrder),
+            };
+        }
         [AllowAnonymous]
 		[HttpPost("Create")]
 		public async Task<ServiceResponse<UserDTO>> Create([FromBody] UserDTO userDTO)

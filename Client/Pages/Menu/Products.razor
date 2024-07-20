@@ -390,6 +390,7 @@
         if (!isSearched)
         {
             productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+            productCount = await Client.GetServiceResponseAsync<int>($"api/Product/Count");
         }
         isSearched = false;
         await InvokeAsync(StateHasChanged);
@@ -397,6 +398,7 @@
 
     private async Task SearchHandler()
     {
+        productCount = await Client.GetServiceResponseAsync<int>($"api/Product/Count");
         if (String.IsNullOrEmpty(searchProduct))
         {
             productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/1");
@@ -417,17 +419,17 @@
 
     private async Task SortByAlphabetically()
     {
-        productList = productList.OrderBy(p => p.Title);
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/title/asc/all/{Page}");
         SortingText = "Alphabetical";
     }
     private async Task SortByPriceLow()
     {
-        productList = productList.OrderBy(p => p.Price);
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/price/asc/all/{Page}");
         SortingText = "Price: Low to High";
     }
     private async Task SortByPriceHigh()
     {
-        productList = productList.OrderByDescending(p => p.Price);
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/price/desc/all/{Page}");
         SortingText = "Price: High to Low";
     }
 
@@ -442,21 +444,25 @@
         if (String.IsNullOrEmpty(selectedCategoryIdAsString))
         {
             productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
+            productCount = await Client.GetServiceResponseAsync<int>($"api/Product/Count");
             return;
         }
 
         selectedCategoryId = Guid.Parse(selectedCategoryIdAsString);
 
-        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/MainCategory/{selectedCategoryId}");
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/MainCategory/{selectedCategoryId}/{Page}");
+        productCount = await Client.GetServiceResponseAsync<int>($"api/Product/CountBy/MainCategory/{selectedCategoryId}");
 
         if (productList.Count() == 0)
         {
-            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subcategory/{selectedCategoryId}");
+            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subcategory/{selectedCategoryId}/{Page}");
+            productCount = await Client.GetServiceResponseAsync<int>($"api/Product/CountBy/Subcategory/{selectedCategoryId}");
         }
 
         if (productList.Count() == 0)
         {
-            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subsubcategory/{selectedCategoryId}");
+            productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subsubcategory/{selectedCategoryId}/{Page}");
+            productCount = await Client.GetServiceResponseAsync<int>($"api/Product/CountBy/Sub_subcategory/{selectedCategoryId}");
         }
     }
 }

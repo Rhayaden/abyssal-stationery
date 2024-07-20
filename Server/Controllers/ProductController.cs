@@ -32,6 +32,30 @@ namespace Blazor.Server.Controllers
 				Data = await _productService.CountOnSales(),
 			};
 		}
+        [HttpGet("CountBy/MainCategory/{categoryId}")]
+        public async Task<ServiceResponse<int>> CountByMainCategory(Guid categoryId)
+        {
+            return new ServiceResponse<int>()
+            {
+                Data = await _productService.CountByMainCategory(categoryId),
+            };
+        }
+        [HttpGet("CountBy/Subcategory/{subcategoryId}")]
+        public async Task<ServiceResponse<int>> CountBySubcategory(Guid subcategoryId)
+        {
+            return new ServiceResponse<int>()
+            {
+                Data = await _productService.CountBySubcategory(subcategoryId),
+            };
+        }
+        [HttpGet("CountBy/Sub_subcategory/{subSubcategoryId}")]
+        public async Task<ServiceResponse<int>> CountBySubsubcategory(Guid subSubcategoryId)
+        {
+            return new ServiceResponse<int>()
+            {
+                Data = await _productService.CountBySubsubcategory(subSubcategoryId),
+            };
+        }
         [HttpPost("CheckSale")]
         public async Task<ServiceResponse<bool>> CheckSale()
         {
@@ -70,6 +94,14 @@ namespace Blazor.Server.Controllers
             return new ServiceResponse<IEnumerable<ProductDTO>>()
             {
                 Data = await _productService.SearchByCategory(input),
+            };
+        }
+        [HttpGet("SortBy/{option}/{sortingOrder}/{selection}/{pageNumber}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> SortBy(int pageNumber, string option, string sortingOrder, string selection)
+        {
+            return new ServiceResponse<IEnumerable<ProductDTO>>()
+            {
+                Data = await _productService.SortBy(pageNumber, option, sortingOrder, selection),
             };
         }
         [HttpGet("Get")]
@@ -132,12 +164,12 @@ namespace Blazor.Server.Controllers
 			};
 		}
 
-        [HttpGet("Get/Subcategory/{subcategoryId}")]
-        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetBySubcategory(Guid subcategoryId)
+        [HttpGet("Get/Subcategory/{subcategoryId}/{pageNumber}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetBySubcategory(Guid subcategoryId, int pageNumber)
         {
             return new ServiceResponse<IEnumerable<ProductDTO>>()
             {
-                Data = await _productService.GetBySubcategory(subcategoryId),
+                Data = await _productService.GetBySubcategory(subcategoryId, pageNumber),
             };
         }
         [HttpGet("Get/{subcategoryId}/{pageNumber}")]
@@ -148,20 +180,20 @@ namespace Blazor.Server.Controllers
                 Data = await _productService.GetBySubcategoryByPage(subcategoryId, pageNumber),
             };
         }
-        [HttpGet("Get/MainCategory/{categoryId}")]
-        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetByMainCategory(Guid categoryId)
+        [HttpGet("Get/MainCategory/{categoryId}/{pageNumber}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetByMainCategory(Guid categoryId, int pageNumber)
         {
             return new ServiceResponse<IEnumerable<ProductDTO>>()
             {
-                Data = await _productService.GetByMainCategory(categoryId),
+                Data = await _productService.GetByMainCategory(categoryId, pageNumber),
             };
         }
-        [HttpGet("Get/Subsubcategory/{subSubcategoryId}")]
-        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetBySubsubcategory(Guid subSubcategoryId)
+        [HttpGet("Get/Subsubcategory/{subSubcategoryId}/{pageNumber}")]
+        public async Task<ServiceResponse<IEnumerable<ProductDTO>>> GetBySubsubcategory(Guid subSubcategoryId, int pageNumber)
         {
             return new ServiceResponse<IEnumerable<ProductDTO>>()
             {
-                Data = await _productService.GetBySubsubcategory(subSubcategoryId),
+                Data = await _productService.GetBySubsubcategory(subSubcategoryId, pageNumber),
             };
         }
 

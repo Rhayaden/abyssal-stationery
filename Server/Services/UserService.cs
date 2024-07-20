@@ -96,5 +96,57 @@ namespace Blazor.Server.Services
             int skip = (page - 1) * _size;
             return await _dbContext.Users.OrderByDescending(u => u.RegisteredAt).Skip(skip).Take(_size).ProjectTo<UserDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
-    }
+
+		public async Task<IEnumerable<UserDTO>> SortBy(int page, string option, string sortingOrder)
+		{
+			int skip = (page - 1) * _size;
+			var users = await _dbContext.Users.ProjectTo<UserDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			IEnumerable<UserDTO> sortedList = new List<UserDTO>();
+			switch (option.ToLower())
+			{
+				case "firstname":
+					if (sortingOrder == "desc")
+					{
+						sortedList = users.OrderByDescending(u => u.FirstName).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = users.OrderBy(u => u.FirstName).Skip(skip).Take(_size);
+					}
+					break;
+				case "lastname":
+					if (sortingOrder == "desc")
+					{
+						sortedList = users.OrderByDescending(u => u.LastName).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = users.OrderBy(u => u.LastName).Skip(skip).Take(_size);
+					}
+					break;
+				case "email":
+					if (sortingOrder == "desc")
+					{
+						sortedList = users.OrderByDescending(u => u.Email).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = users.OrderBy(u => u.Email).Skip(skip).Take(_size);
+					}
+					break;
+				case "date":
+					if (sortingOrder == "desc")
+					{
+						sortedList = users.OrderByDescending(u => u.RegisteredAt).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = users.OrderBy(u => u.RegisteredAt).Skip(skip).Take(_size);
+					}
+					break;
+			}
+
+			return sortedList;
+		}
+	}
 }

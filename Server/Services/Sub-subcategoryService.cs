@@ -76,6 +76,48 @@ namespace Blazor.Server.Services
 			return await _dbContext.Subsubcategories.Include(c => c.Subcategory).Where(c => c.Name.ToLower().Contains(input) || c.Subcategory.Name.ToLower().Contains(input)).OrderByDescending(c => c.Name).ProjectTo<Sub_subcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
 		}
 
+		public async Task<IEnumerable<Sub_subcategoryDTO>> SortBy(int page, string option, string sortingOrder)
+		{
+			int skip = (page - 1) * _size;
+			var subSubcategories = await _dbContext.Subsubcategories.ProjectTo<Sub_subcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			IEnumerable<Sub_subcategoryDTO> sortedList = new List<Sub_subcategoryDTO>();
+			switch (option.ToLower())
+			{
+				case "name":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subSubcategories.OrderByDescending(s => s.Name).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subSubcategories.OrderBy(s => s.Name).Skip(skip).Take(_size);
+					}
+					break;
+				case "subcategory":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subSubcategories.OrderByDescending(s => s.Subcategory.Name).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subSubcategories.OrderBy(s => s.Subcategory.Name).Skip(skip).Take(_size);
+					}
+					break;
+				case "date":
+					if (sortingOrder == "desc")
+					{
+						sortedList = subSubcategories.OrderByDescending(s => s.UpdatedAt).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = subSubcategories.OrderBy(s => s.UpdatedAt).Skip(skip).Take(_size);
+					}
+					break;
+			}
+
+			return sortedList;
+		}
+
 		public async Task<Sub_subcategoryDTO> Update(Sub_subcategoryDTO subSubcategoryDTO)
 		{
 			var subSubCategory = await _dbContext.Subsubcategories.FindAsync(subSubcategoryDTO.Id);

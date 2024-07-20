@@ -97,5 +97,37 @@ namespace Blazor.Server.Services
 
 			return orderDTO;
 		}
+
+		public async Task<IEnumerable<OrderDTO>> SortBy(int page, string option, string sortingOrder)
+		{
+			int skip = (page - 1) * _size;
+			var orders = await _dbContext.Orders.ProjectTo<OrderDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			IEnumerable<OrderDTO> sortedList = new List<OrderDTO>();
+			switch (option.ToLower())
+			{
+				case "total":
+					if (sortingOrder == "desc")
+					{
+						sortedList = orders.OrderByDescending(o => o.Total).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = orders.OrderBy(o => o.Total).Skip(skip).Take(_size);
+					}
+					break;
+				case "date":
+					if (sortingOrder == "desc")
+					{
+						sortedList = orders.OrderByDescending(o => o.CreateDate).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = orders.OrderBy(o => o.CreateDate).Skip(skip).Take(_size);
+					}
+					break;
+			}
+
+			return sortedList;
+		}
 	}
 }

@@ -148,37 +148,37 @@ else
 		Modal.Show<Modal>("", parameters);
 	}
 
-	private void SortByTitleHandler()
+	private async Task SortByTitleHandler()
 	{
-		promotionList = promotionList.OrderBy(p => p.PromotionName);
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/SortBy/promotionname/asc/promotion/{Page}");
 	}
-	private void SortByTitleDescHandler()
+	private async Task SortByTitleDescHandler()
 	{
-		promotionList = promotionList.OrderByDescending(p => p.PromotionName);
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/SortBy/promotionname/desc/promotion/{Page}");
 	}
-	private void SortByDiscountHandler()
+	private async Task SortByDiscountHandler()
 	{
-		promotionList = promotionList.OrderBy(p => p.PromotionDiscount);
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/SortBy/discount/asc/promotion/{Page}");
 	}
-	private void SortByDiscountDescHandler()
+	private async Task SortByDiscountDescHandler()
 	{
-		promotionList = promotionList.OrderByDescending(p => p.PromotionDiscount);
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/SortBy/discount/desc/promotion/{Page}");
 	}
-	private void SortByDateHandler()
+	private async Task SortByDateHandler()
 	{
-		promotionList = promotionList.OrderBy(p => p.PromotionStartedAt);
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/SortBy/promotiondate/asc/promotion/{Page}");
 	}
-	private void SortByDateDescHandler()
+	private async Task SortByDateDescHandler()
 	{
-		promotionList = promotionList.OrderByDescending(p => p.PromotionStartedAt);
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/SortBy/promotiondate/desc/promotion/{Page}");
 	}
-	private void SortByDurationHandler()
+	private async Task SortByDurationHandler()
 	{
-		promotionList = promotionList.OrderBy(p => p.PromotionDurationHour);
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/SortBy/duration/asc/promotion/{Page}");
 	}
-	private void SortByDurationDescHandler()
+	private async Task SortByDurationDescHandler()
 	{
-		promotionList = promotionList.OrderByDescending(p => p.PromotionDurationHour);
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/SortBy/duration/desc/promotion/{Page}");
 	}
 
 	private async Task AppStateChanged(ComponentBase component)

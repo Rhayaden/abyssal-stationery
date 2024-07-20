@@ -122,37 +122,37 @@ else
         }
     }
 
-    private void SortByFirstNameHandler()
+    private async Task SortByFirstNameHandler()
     {
-        users = users.OrderBy(u => u.FirstName);
+        users = await Client.GetServiceResponseAsync<IEnumerable<UserDTO>>($"api/User/SortBy/firstname/asc/{Page}");
     }
-    private void SortByFirstNameDescHandler()
+    private async Task SortByFirstNameDescHandler()
     {
-        users = users.OrderByDescending(u => u.FirstName);
+        users = await Client.GetServiceResponseAsync<IEnumerable<UserDTO>>($"api/User/SortBy/firstname/desc/{Page}");
     }
-    private void SortByLastNameHandler()
+    private async Task SortByLastNameHandler()
     {
-        users = users.OrderBy(u => u.LastName);
+        users = await Client.GetServiceResponseAsync<IEnumerable<UserDTO>>($"api/User/SortBy/lastname/asc/{Page}");
     }
-    private void SortByLastNameDescHandler()
+    private async Task SortByLastNameDescHandler()
     {
-        users = users.OrderByDescending(u => u.LastName);
+        users = await Client.GetServiceResponseAsync<IEnumerable<UserDTO>>($"api/User/SortBy/lastname/desc/{Page}");
     }
-    private void SortByEmailHandler()
+    private async Task SortByEmailHandler()
     {
-        users = users.OrderBy(u => u.Email);
+        users = await Client.GetServiceResponseAsync<IEnumerable<UserDTO>>($"api/User/SortBy/email/asc/{Page}");
     }
-    private void SortByEmailDescHandler()
+    private async Task SortByEmailDescHandler()
     {
-        users = users.OrderByDescending(u => u.Email);
+        users = await Client.GetServiceResponseAsync<IEnumerable<UserDTO>>($"api/User/SortBy/email/desc/{Page}");
     }
-    private void SortByDate()
+    private async Task SortByDate()
     {
-        users = users.OrderBy(u => u.RegisteredAt);
+        users = await Client.GetServiceResponseAsync<IEnumerable<UserDTO>>($"api/User/SortBy/date/asc/{Page}");
     }
-    private void SortByDateDesc()
+    private async Task SortByDateDesc()
     {
-        users = users.OrderByDescending(u => u.RegisteredAt);
+        users = await Client.GetServiceResponseAsync<IEnumerable<UserDTO>>($"api/User/SortBy/date/desc/{Page}");
     }
 
     private async Task AppStateChanged(ComponentBase component)

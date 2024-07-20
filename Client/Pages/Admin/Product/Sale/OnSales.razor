@@ -165,53 +165,53 @@ else
 		Modal.Show<Modal>("", parameters);
 	}
 
-	private void SortByTitleHandler()
+	private async Task SortByTitleHandler()
 	{
-		productList = productList.OrderBy(p => p.Title);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/title/asc/onSales/{Page}");
 	}
-	private void SortByTitleDescHandler()
+	private async Task SortByTitleDescHandler()
 	{
-		productList = productList.OrderByDescending(p => p.Title);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/title/desc/onSales/{Page}");
 	}
-	private void SortByCategoryNameHandler()
+	private async Task SortByCategoryNameHandler()
 	{
-		productList = productList.OrderBy(p => p.Subsubcategory.Name);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/category/asc/onSales/{Page}");
 	}
-	private void SortByCategoryNameDescHandler()
+	private async Task SortByCategoryNameDescHandler()
 	{
-		productList = productList.OrderByDescending(p => p.Subsubcategory.Name);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/category/desc/onSales/{Page}");
 	}
-	private void SortByPriceLowHandler()
+	private async Task SortByPriceLowHandler()
 	{
-		productList = productList.OrderBy(p => p.Price);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/price/asc/onSales/{Page}");
 	}
-	private void SortByPriceHighHandler()
+	private async Task SortByPriceHighHandler()
 	{
-		productList = productList.OrderByDescending(p => p.Price);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/price/desc/onSales/{Page}");
 	}
-	private void SortByStockLowHandler()
+	private async Task SortByStockLowHandler()
 	{
-		productList = productList.OrderBy(p => p.Stock);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/stock/asc/onSales/{Page}");
 	}
-	private void SortByStockHighHandler()
+	private async Task SortByStockHighHandler()
 	{
-		productList = productList.OrderByDescending(p => p.Stock);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/stock/desc/onSales/{Page}");
 	}
-	private void SortByDateHandler()
+	private async Task SortByDateHandler()
 	{
-		productList = productList.OrderBy(p => p.UpdatedAt);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/saledate/asc/onSales/{Page}");
 	}
-	private void SortByDateDescHandler()
+	private async Task SortByDateDescHandler()
 	{
-		productList = productList.OrderByDescending(p => p.UpdatedAt);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/saledate/desc/onSales/{Page}");
 	}	
-	private void SortByDurationHandler()
+	private async Task SortByDurationHandler()
 	{
-		productList = productList.OrderBy(p => p.DurationHour);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/duration/asc/onSales/{Page}");
 	}
-	private void SortByDurationDescHandler()
+	private async Task SortByDurationDescHandler()
 	{
-		productList = productList.OrderByDescending(p => p.DurationHour);
+		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/SortBy/duration/desc/onSales/{Page}");
 	}
 
 	private async Task AppStateChanged(ComponentBase component)

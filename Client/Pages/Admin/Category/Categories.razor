@@ -141,21 +141,21 @@ else
 		Modal.Show<Modal>("", parameters);
 	}
 
-	private void SortByNameHandler()
+	private async Task SortByNameHandler()
 	{
-		categoryList = categoryList.OrderBy(c => c.Name);
+		categoryList = await Client.GetServiceResponseAsync<IEnumerable<CategoryDTO>>($"api/Category/SortBy/name/asc/{Page}");
 	}
-	private void SortByNameDescHandler()
+	private async Task SortByNameDescHandler()
 	{
-		categoryList = categoryList.OrderByDescending(c => c.Name);
+		categoryList = await Client.GetServiceResponseAsync<IEnumerable<CategoryDTO>>($"api/Category/SortBy/name/desc/{Page}");
 	}
-	private void SortByDateHandler()
+	private async Task SortByDateHandler()
 	{
-		categoryList = categoryList.OrderBy(c => c.UpdatedAt);
+		categoryList = await Client.GetServiceResponseAsync<IEnumerable<CategoryDTO>>($"api/Category/SortBy/date/asc/{Page}");
 	}
-	private void SortByDateDescHandler()
+	private async Task SortByDateDescHandler()
 	{
-		categoryList = categoryList.OrderByDescending(c => c.UpdatedAt);
+		categoryList = await Client.GetServiceResponseAsync<IEnumerable<CategoryDTO>>($"api/Category/SortBy/name/desc/{Page}");
 	}
 
 	private async Task AppStateChanged(ComponentBase component)

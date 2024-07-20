@@ -28,7 +28,19 @@ namespace Blazor.Server.Services
 		{
 			return await _dbContext.Products.Where(p => p.OnSale == true).CountAsync();
 		}
-		public async Task<ProductDTO> Create(ProductDTO productDTO)
+        public async Task<int> CountByMainCategory(Guid categoryId)
+        {
+            return await _dbContext.Products.Where(p => p.Subsubcategory.Subcategory.CategoryId == categoryId).CountAsync();
+        }
+        public async Task<int> CountBySubcategory(Guid subcategoryId)
+        {
+            return await _dbContext.Products.Where(p => p.Subsubcategory.Subcategory.Id == subcategoryId).CountAsync();
+        }
+        public async Task<int> CountBySubsubcategory(Guid subSubcategoryId)
+        {
+            return await _dbContext.Products.Where(p => p.Subsubcategory.Id == subSubcategoryId).CountAsync();
+        }
+        public async Task<ProductDTO> Create(ProductDTO productDTO)
 		{
 			var product = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == productDTO.Id);
 			if (product != null)
@@ -69,19 +81,22 @@ namespace Blazor.Server.Services
 			return await _dbContext.Products.Include(p => p.Subsubcategory).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
 		}
 
-		public async Task<IEnumerable<ProductDTO>> GetBySubcategory(Guid subcategoryId)
+        public async Task<IEnumerable<ProductDTO>> GetByMainCategory(Guid categoryId, int page)
         {
-            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.SubcategoryId == subcategoryId).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            int skip = (page - 1) * _size;
+            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.Subcategory.CategoryId == categoryId).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
-        public async Task<IEnumerable<ProductDTO>> GetByMainCategory(Guid categoryId)
+        public async Task<IEnumerable<ProductDTO>> GetBySubcategory(Guid subcategoryId, int page)
         {
-            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.Subcategory.CategoryId == categoryId).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            int skip = (page - 1) * _size;
+            return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.SubcategoryId == subcategoryId).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
-        public async Task<IEnumerable<ProductDTO>> GetBySubsubcategory(Guid subSubcategoryId)
+        public async Task<IEnumerable<ProductDTO>> GetBySubsubcategory(Guid subSubcategoryId, int page)
         {
-            return await _dbContext.Products.Where(p => p.SubsubcategoryId == subSubcategoryId).OrderByDescending(p => p.UpdatedAt).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            int skip = (page - 1) * _size;
+            return await _dbContext.Products.Where(p => p.SubsubcategoryId == subSubcategoryId).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         public async Task<ProductDTO> GetByID(Guid productId)
@@ -231,5 +246,114 @@ namespace Blazor.Server.Services
             int skip = (page - 1) * _size;
             return await _dbContext.Products.Include(p => p.Subsubcategory).Where(p => p.Subsubcategory.Subcategory.Id == subcategoryId).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
+
+		public async Task<IEnumerable<ProductDTO>> SortBy(int page, string option, string sortingOrder, string selection)
+		{
+            int skip = (page - 1) * _size;
+			IEnumerable<ProductDTO> products = new List<ProductDTO>();
+			if(selection == "all")
+			{
+				products = await _dbContext.Products.ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			}
+			else
+			{
+				products = await _dbContext.Products.Where(p => p.OnSale == true).ProjectTo<ProductDTO>(_mapper.ConfigurationProvider).ToListAsync();
+			}
+
+			var sortedList = SortSwitch(products, page, option, sortingOrder);
+
+			return sortedList;
+        }
+
+		private IEnumerable<ProductDTO> SortSwitch(IEnumerable<ProductDTO> products, int page, string option, string sortingOrder)
+		{
+			int skip = (page - 1) * _size;
+			IEnumerable<ProductDTO> sortedList = new List<ProductDTO>();
+			switch (option.ToLower())
+			{
+				case "title":
+					if (sortingOrder == "desc")
+					{
+						sortedList = products.OrderByDescending(p => p.Title).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = products.OrderBy(p => p.Title).Skip(skip).Take(_size);
+					}
+					break;
+				case "category":
+					if (sortingOrder == "desc")
+					{
+						sortedList = products.OrderByDescending(p => p.Subsubcategory.Name).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = products.OrderBy(p => p.Subsubcategory.Name).Skip(skip).Take(_size);
+					}
+					break;
+				case "price":
+					if (sortingOrder == "desc")
+					{
+						sortedList = products.OrderByDescending(p => p.Price).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = products.OrderBy(p => p.Price).Skip(skip).Take(_size);
+					}
+					break;
+				case "saleprice":
+					if (sortingOrder == "desc")
+					{
+						sortedList = products.OrderByDescending(p => p.SalePrice).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = products.OrderBy(p => p.SalePrice).Skip(skip).Take(_size);
+					}
+					break;
+				case "stock":
+					if (sortingOrder == "desc")
+					{
+						sortedList = products.OrderByDescending(p => p.Stock).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = products.OrderBy(p => p.Stock).Skip(skip).Take(_size);
+					}
+					break;
+				case "date":
+					if (sortingOrder == "desc")
+					{
+						sortedList = products.OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = products.OrderBy(p => p.UpdatedAt).Skip(skip).Take(_size);
+					}
+					break;
+				case "saledate":
+					if (sortingOrder == "desc")
+					{
+						sortedList = products.OrderByDescending(p => p.SaleStartedAt).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = products.OrderBy(p => p.SaleStartedAt).Skip(skip).Take(_size);
+					}
+					break;
+				case "duration":
+					if (sortingOrder == "desc")
+					{
+						sortedList = products.OrderByDescending(p => p.DurationHour).Skip(skip).Take(_size);
+					}
+					else
+					{
+						sortedList = products.OrderBy(p => p.DurationHour).Skip(skip).Take(_size);
+					}
+					break;
+			}
+
+			return sortedList;
+		}
     }
 }

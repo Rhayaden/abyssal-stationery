@@ -33,7 +33,15 @@ namespace Blazor.Server.Controllers
                 Data = await _categoryService.Search(input),
             };
         }
-        [HttpGet("Get")]
+		[HttpGet("SortBy/{option}/{sortingOrder}/{pageNumber}")]
+		public async Task<ServiceResponse<IEnumerable<CategoryDTO>>> SortBy(int pageNumber, string option, string sortingOrder)
+		{
+			return new ServiceResponse<IEnumerable<CategoryDTO>>()
+			{
+				Data = await _categoryService.SortBy(pageNumber, option, sortingOrder),
+			};
+		}
+		[HttpGet("Get")]
 		public async Task<ServiceResponse<IEnumerable<CategoryDTO>>> Get()
 		{
 			return new ServiceResponse<IEnumerable<CategoryDTO>>()

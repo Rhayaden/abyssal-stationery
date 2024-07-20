@@ -21,7 +21,7 @@
                     </a>
                 }
             </li>
-            @for (PageNumber = 1; PageNumber <= (ObjectCount / Size + 1); PageNumber++)
+            @for (PageNumber = 1; PageNumber < (ObjectCount / Size + 1); PageNumber++)
             {
                 <li>
                     <a href="/@ObjectName/page/@PageNumber" class="flex items-center justify-center px-3 h-8 leading-tight text-white bg-indigo-600 border border-indigo-200 hover:bg-indigo-100 hover:text-indigo-500">@PageNumber</a>
