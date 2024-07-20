@@ -10,5 +10,8 @@
 		public ICollection<Sub_subcategoryDTO> Subsubcategories { get; set; } = new List<Sub_subcategoryDTO>();
 		public bool ActivePromotion { get; set; } = false;
 		public string? PromotionName { get; set; }
-	}
+		public int? PromotionDiscount { get; set; }
+		public int? PromotionDurationHour { get; set; }
+        public DateTime? PromotionStartedAt { get; set; }
+    }
 }

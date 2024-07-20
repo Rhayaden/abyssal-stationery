@@ -20,6 +20,7 @@ namespace Blazor.Shared.DTOs
 		public Sub_subcategoryDTO? Subsubcategory { get; set; }
 		public DateTime UpdatedAt { get; set; } = DateTime.Now;
         public bool OnSale { get; set; } = false;
+		[Range(10,90, ErrorMessage = "Discount can be between 10 - 90 %")]
 		public int? Discount { get; set; }
 		public decimal? SalePrice { get; set; }
 		public int? DurationHour { get; set; }

@@ -52,7 +52,18 @@
             return;
         }
 
-        var data = await Client.DeleteAsync($"api/{Object}/Delete/{ObjectId}");
+        object data = null;
+
+        if(Object == "Promotion")
+        {
+            await Client.PostAsync($"api/Subcategory/Promotion/End/{ObjectId}", null);
+            data = await Client.PostAsync($"api/Product/Sale/End/{ObjectId}", null);
+        }
+        else
+        {
+            data = await Client.DeleteAsync($"api/{Object}/Delete/{ObjectId}");          
+        }
+
 
         if (data != null)
         {
@@ -70,9 +81,13 @@
             {
                 navigationManager.NavigateTo("/admin/subcategories");
             }
-            else
+            else if (Object == "Sub_subcategory")
             {
                 navigationManager.NavigateTo("/admin/sub-subcategories");
+            }
+            else
+            {
+                navigationManager.NavigateTo("/admin/promotions");
             }
         }
     }

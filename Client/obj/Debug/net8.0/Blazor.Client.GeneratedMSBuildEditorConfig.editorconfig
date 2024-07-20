@@ -118,8 +118,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxQcm9kdWN0cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Sale/EndForm.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxTYWxlXEVuZEZvcm0ucmF6b3I=
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Promotion/EndForm.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxQcm9tb3Rpb25cRW5kRm9ybS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Promotion/Promotions.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxQcm9tb3Rpb25cUHJvbW90aW9ucy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Promotion/PromotionsNavigator.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxQcm9tb3Rpb25cUHJvbW90aW9uc05hdmlnYXRvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Promotion/StartForm.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxQcm9tb3Rpb25cU3RhcnRGb3JtLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Sale/OnSales.razor]
@@ -128,10 +140,6 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Sale/SalesNavigator.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxTYWxlXFNhbGVzTmF2aWdhdG9yLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/Product/Sale/StartForm.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cUHJvZHVjdFxTYWxlXFN0YXJ0Rm9ybS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/pc/source/repos/Blazor/Client/Pages/Admin/User/User.razor]

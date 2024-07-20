@@ -266,7 +266,10 @@
         {
             isAuth = false;
         }
+
         await Client.PostAsync($"api/Product/CheckSale", null);
+        await Client.PostAsync("api/Subcategory/CheckPromotion", null);
+
         categories = await Client.GetServiceResponseAsync<IEnumerable<CategoryDTO>>("api/Category/Get");
         productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetPage/{Page}");
         productsOnSale = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetOnSales/{Page}");

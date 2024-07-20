@@ -1,12 +1,12 @@
-﻿@page "/admin/sales/page/{Page:int}"
+﻿@page "/admin/promotions/page/{Page:int}"
 @layout AdminLayout
 @inject IToastService toastService
 
 <div class="flex justify-start items-center px-2 mt-6 w-full">
-	<a class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" href="/admin/products"><svg class="w-6 h-6 mr-2 text-white inline-flex justify-center items-center transition duration-75 group-hover:text-indigo-600" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" /></svg>Start Sale</a>
+	<a class="ml-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" href="/admin/promotion/start"><svg class="w-6 h-6 mr-2 text-white inline-flex justify-center items-center transition duration-75 group-hover:text-indigo-600" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" /></svg>Start Promotion</a>
 </div>
 
-@if (productList.Count() > 0)
+@if (promotionList.Count() > 0)
 {
 	<div class="w-full px-2 mx-auto mt-4 h-screen">
 		<div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded ">
@@ -22,25 +22,16 @@
 					<thead>
 						<tr>
 							<th class="px-4 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-								Id
+								Subcategory Id
 							</th>
 							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-								Image
+								Promotion Name <button class="text-xl pr-1" @onclick="SortByTitleHandler">↓</button><button class="text-xl" @onclick="SortByTitleDescHandler">↑</button>
 							</th>
 							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-								Title <button class="text-xl pr-1" @onclick="SortByTitleHandler">↓</button><button class="text-xl" @onclick="SortByTitleDescHandler">↑</button>
+								Discount % <button class="text-xl pr-1" @onclick="SortByDiscountHandler">↓</button><button class="text-xl" @onclick="SortByDiscountDescHandler">↑</button>
 							</th>
 							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-								Subcategory <button class="text-xl pr-1" @onclick="SortByCategoryNameHandler">↓</button><button class="text-xl" @onclick="SortByCategoryNameDescHandler">↑</button>
-							</th>
-							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-								Sale Price <button class="text-xl pr-1" @onclick="SortByPriceLowHandler">↓</button><button class="text-xl" @onclick="SortByPriceHighHandler">↑</button>
-							</th>
-							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-								Stock  <button class="text-xl pr-1" @onclick="SortByStockLowHandler">↓</button><button class="text-xl" @onclick="SortByStockHighHandler">↑</button>
-							</th>
-							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-								Sale Started <button class="text-xl pr-1" @onclick="SortByDateDescHandler">↓</button><button class="text-xl" @onclick="SortByDateHandler">↑</button>
+								Promotion Started <button class="text-xl pr-1" @onclick="SortByDateDescHandler">↓</button><button class="text-xl" @onclick="SortByDateHandler">↑</button>
 							</th>
 							<th class="px-6 bg-indigo-50 text-indigo-500 align-middle border border-solid border-indigo-100 py-3 uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
 								Duration (Hour) <button class="text-xl pr-1" @onclick="SortByDurationHandler">↓</button><button class="text-xl" @onclick="SortByDurationDescHandler">↑</button>
@@ -51,35 +42,26 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var product in productList)
+						@foreach (var promotion in promotionList)
 						{
 							<tr>
 								<th class="border-t-0 px-2 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-left text-indigo-600 ">
-									@product.Id
-								</th>
-								<th class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 text-left text-indigo-600 ">
-									<img src="@product.Image" class="mx-auto w-12 h-12" alt="@product.Title" />
+									@promotion.Id
 								</th>
 								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
-									@product.Title
+									@promotion.PromotionName
 								</td>
 								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
-									@product.Subsubcategory.Name
+									@promotion.PromotionDiscount
 								</td>
 								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
-									$@product.SalePrice
+									@promotion.PromotionStartedAt
 								</td>
 								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
-									@product.Stock
-								</td>
-								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
-									@product.SaleStartedAt
-								</td>
-								<td class="border-t-0 px-6 align-middle border-l-0 border-r-0 whitespace-nowrap p-4 ">
-									@product.DurationHour
+									@promotion.PromotionDurationHour
 								</td>
 								<td class="border-t-0 px-2 align-middle border-l-0 border-r-0 whitespace-nowrap p-4">
-									<a href="/admin/products/edit/@product.Id" class="bg-transparent hover:bg-indigo-500 text-indigo-600 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded">Update</a>
+									<button @onclick="()=>ClickHandler(promotion.Id)" class="bg-transparent hover:bg-indigo-500 text-indigo-600 font-semibold hover:text-white py-2 px-4 border border-indigo-500 hover:border-transparent rounded">End</button>
 								</td>
 							</tr>
 						}
@@ -88,11 +70,11 @@
 			</div>
 		</div>
 	</div>
-	<Paginator ObjectCount="productCount" ObjectName="admin/sales" CurrentPage="Page" Size="ItemsPerPage.Product" />
+	<Paginator ObjectCount="promotionCount" ObjectName="admin/promotions" CurrentPage="Page" Size="ItemsPerPage.Product" />
 }
 else
 {
-	<p class="text-center font-bold text-xl h-screen">No product on sale</p>
+	<p class="text-center font-bold text-xl h-screen">No promotions found</p>
 }
 
 @code {
@@ -117,9 +99,9 @@ else
 	[Parameter]
 	public int Page { get; set; } = 1;
 
-	private IEnumerable<ProductDTO> productList = new List<ProductDTO>();
+	private IEnumerable<SubcategoryDTO> promotionList = new List<SubcategoryDTO>();
 
-	private int productCount { get; set; }
+	private int promotionCount { get; set; }
 
 	private bool? isAdmin { get; set; }
 
@@ -128,6 +110,7 @@ else
 		if (firstRender)
 		{
 			appStateManager.OnProductsChanged += async component => await AppStateChanged(component);
+			appStateManager.OnPromotionsChanged += async component => await AppStateChanged(component);
 			appStateManager.OnPageChanged += async component => await AppStateChanged(component);
 		}
 	}
@@ -143,8 +126,8 @@ else
 			var data = await Client.GetServiceResponseAsync<bool>($"api/Admin/Check/{trimmedEmail}");
 			if (data == true)
 			{
-				productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetOnSales/{Page}");
-				productCount = await Client.GetServiceResponseAsync<int>($"api/Product/CountOnSales");
+				promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/GetPromotions/{Page}");
+				promotionCount = await Client.GetServiceResponseAsync<int>("api/Subcategory/Promotions/Count");
 			}
 			else
 			{
@@ -160,63 +143,47 @@ else
 	private void ClickHandler(Guid objectId)
 	{
 		ModalParameters parameters = new ModalParameters();
-		parameters.Add("Object", "Product");
+		parameters.Add("Object", "Promotion");
 		parameters.Add("ObjectId", objectId);
 		Modal.Show<Modal>("", parameters);
 	}
 
 	private void SortByTitleHandler()
 	{
-		productList = productList.OrderBy(p => p.Title);
+		promotionList = promotionList.OrderBy(p => p.PromotionName);
 	}
 	private void SortByTitleDescHandler()
 	{
-		productList = productList.OrderByDescending(p => p.Title);
+		promotionList = promotionList.OrderByDescending(p => p.PromotionName);
 	}
-	private void SortByCategoryNameHandler()
+	private void SortByDiscountHandler()
 	{
-		productList = productList.OrderBy(p => p.Subsubcategory.Name);
+		promotionList = promotionList.OrderBy(p => p.PromotionDiscount);
 	}
-	private void SortByCategoryNameDescHandler()
+	private void SortByDiscountDescHandler()
 	{
-		productList = productList.OrderByDescending(p => p.Subsubcategory.Name);
-	}
-	private void SortByPriceLowHandler()
-	{
-		productList = productList.OrderBy(p => p.Price);
-	}
-	private void SortByPriceHighHandler()
-	{
-		productList = productList.OrderByDescending(p => p.Price);
-	}
-	private void SortByStockLowHandler()
-	{
-		productList = productList.OrderBy(p => p.Stock);
-	}
-	private void SortByStockHighHandler()
-	{
-		productList = productList.OrderByDescending(p => p.Stock);
+		promotionList = promotionList.OrderByDescending(p => p.PromotionDiscount);
 	}
 	private void SortByDateHandler()
 	{
-		productList = productList.OrderBy(p => p.UpdatedAt);
+		promotionList = promotionList.OrderBy(p => p.PromotionStartedAt);
 	}
 	private void SortByDateDescHandler()
 	{
-		productList = productList.OrderByDescending(p => p.UpdatedAt);
-	}	
+		promotionList = promotionList.OrderByDescending(p => p.PromotionStartedAt);
+	}
 	private void SortByDurationHandler()
 	{
-		productList = productList.OrderBy(p => p.DurationHour);
+		promotionList = promotionList.OrderBy(p => p.PromotionDurationHour);
 	}
 	private void SortByDurationDescHandler()
 	{
-		productList = productList.OrderByDescending(p => p.DurationHour);
+		promotionList = promotionList.OrderByDescending(p => p.PromotionDurationHour);
 	}
 
 	private async Task AppStateChanged(ComponentBase component)
 	{
-		productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/GetOnSales/{Page}");
+		promotionList = await Client.GetServiceResponseAsync<IEnumerable<SubcategoryDTO>>($"api/Subcategory/GetPromotions/{Page}");
 		await InvokeAsync(StateHasChanged);
 	}
 }

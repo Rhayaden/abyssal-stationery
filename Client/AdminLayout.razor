@@ -43,7 +43,7 @@
             @if (toggleCategory)
             {
                 <ul class="flex justify-center items-center mx-6 py-2 space-x-1">
-                    <li><a href="/admin/categories" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg">Main Categories</a></li>
+                    <li><a href="/admin/categories" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg hover:bg-indigo-50">Main Categories</a></li>
                     <li>
                         <button @onclick="NavigateCategoryHandler" class="py-2 px-5 flex items-center bg-transparent transition-all duration-500 ease-in-out text-white hover:bg-white hover:text-gray-900 font-semibold rounded-lg flex justify-center">
                             <svg class="w-6 h-6" fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
@@ -53,7 +53,7 @@
                     </li>
                 </ul>
                 <ul class="flex justify-center items-center py-2 mx-6 space-x-1">
-                    <li><a href="/admin/subcategories" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg">Subcategories</a></li>
+                    <li><a href="/admin/subcategories" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg hover:bg-indigo-50">Subcategories</a></li>
                     <li>
                         <button @onclick="NavigateSubcategoryHandler" class="py-2 px-5 flex items-center bg-transparent transition-all duration-500 ease-in-out text-white hover:bg-white hover:text-gray-900 font-semibold rounded-lg flex justify-center">
                             <svg class="w-6 h-6" fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
@@ -63,7 +63,7 @@
                     </li>
                 </ul>
                 <ul class="flex justify-center items-center py-2 mx-6 space-x-1">
-                    <li><a href="/admin/sub-subcategories" class="py-2 px-5 flex items-center flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg">Sub-subcategories</a></li>
+                    <li><a href="/admin/sub-subcategories" class="py-2 px-5 flex items-center flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg hover:bg-indigo-50">Sub-subcategories</a></li>
                     <li>
                         <button @onclick="NavigateSubsubcategoryHandler" class="py-2 px-5  bg-transparent transition-all duration-500 ease-in-out text-white hover:bg-white hover:text-gray-900 font-semibold rounded-lg flex justify-center">
                             <svg class="w-6 h-6" fill="currentColor" stroke="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
@@ -76,15 +76,18 @@
             @if (toggleProduct)
             {
                 <ul class="flex justify-center items-center mx-6 space-x-1 py-2 space-x-1">
-                    <li><a href="/admin/products" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg">Products</a></li>
+                    <li><a href="/admin/products" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg hover:bg-indigo-50">Products</a></li>
                     <li><button @onclick="NavigateProductHandler" class="py-2 px-5  bg-transparent transition-all duration-500 ease-in-out text-white hover:bg-white hover:text-gray-900 font-semibold rounded-lg flex justify-center">Add Product</button></li>
                 </ul>
             }
             @if (toggleSale)
             {
                 <ul class="flex justify-center items-center mx-6 space-x-1 py-2 space-x-1">
-                    <li><a href="/admin/sales" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg">Products on Sale</a></li>
+                    <li><a href="/admin/sales" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg hover:bg-indigo-50">Products on Sale</a></li>
                     <li><a href="/admin/products" class="py-2 px-5 bg-transparent transition-all duration-500 ease-in-out text-white hover:bg-white hover:text-gray-900 font-semibold rounded-lg flex justify-center">Start Sale on Product</a></li>
+                </ul>
+                <ul class="flex justify-center items-center mx-6 space-x-1 py-2 space-x-1">
+                    <li><a href="/admin/promotions" class="py-2 px-5 flex justify-center bg-white transition-all duration-500 ease-in-out text-gray-900 font-semibold rounded-lg hover:bg-indigo-50">Active Promotions</a></li>
                     <li><a href="/admin/promotion/start" class="py-2 px-5 bg-transparent transition-all duration-500 ease-in-out text-white hover:bg-white hover:text-gray-900 font-semibold rounded-lg flex justify-center">Start Promotion</a></li>
                     <li><a href="/admin/promotion/end" class="py-2 px-5 bg-transparent transition-all duration-500 ease-in-out text-white hover:bg-white hover:text-gray-900 font-semibold rounded-lg flex justify-center">End Promotion</a></li>
                 </ul>

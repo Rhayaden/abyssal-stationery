@@ -25,7 +25,48 @@ namespace Blazor.Server.Controllers
 				Data = await _subCategoryService.Count(),
 			};
 		}
-		[HttpGet("Search/{input}")]
+        [HttpGet("Promotions/Count")]
+        public async Task<ServiceResponse<int>> CountPromotions()
+        {
+            return new ServiceResponse<int>()
+            {
+                Data = await _subCategoryService.CountPromotions(),
+            };
+        }
+        [HttpPost("CheckPromotion")]
+        public async Task<ServiceResponse<bool>> CheckPromotion()
+        {
+            return new ServiceResponse<bool>()
+            {
+                Data = await _subCategoryService.CheckPromotion(),
+            };
+        }
+        [HttpGet("GetPromotions/{pageNumber}")]
+        public async Task<ServiceResponse<IEnumerable<SubcategoryDTO>>> GetPromotions(int pageNumber)
+        {
+
+            return new ServiceResponse<IEnumerable<SubcategoryDTO>>()
+            {
+                Data = await _subCategoryService.GetPromotions(pageNumber),
+            };
+        }
+        [HttpPost("Promotion/Start")]
+        public async Task<ServiceResponse<bool>> StartPromotion([FromBody] SaleDTO saleDTO)
+        {
+            return new ServiceResponse<bool>()
+            {
+                Data = await _subCategoryService.StartPromotion(saleDTO),
+            };
+        }
+        [HttpPost("Promotion/End/{subcategoryId}")]
+        public async Task<ServiceResponse<bool>> EndPromotion(Guid subcategoryId)
+        {
+            return new ServiceResponse<bool>()
+            {
+                Data = await _subCategoryService.EndPromotion(subcategoryId),
+            };
+        }
+        [HttpGet("Search/{input}")]
 		public async Task<ServiceResponse<IEnumerable<SubcategoryDTO>>> Search(string input)
 		{
 			return new ServiceResponse<IEnumerable<SubcategoryDTO>>()

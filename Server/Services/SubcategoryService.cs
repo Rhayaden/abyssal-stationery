@@ -26,12 +26,17 @@ namespace Blazor.Server.Services
 		{
 			return await _dbContext.Subcategories.CountAsync();
 		}
-		public async Task<SubcategoryDTO> Create(SubcategoryDTO subcategoryDTO)
+
+        public async Task<int> CountPromotions()
+        {
+            return await _dbContext.Subcategories.Where(s => s.ActivePromotion == true).CountAsync();
+        }
+        public async Task<SubcategoryDTO> Create(SubcategoryDTO subcategoryDTO)
 		{
 			var subCategoryInDb = await _dbContext.Subcategories.FirstOrDefaultAsync(c => c.Id == subcategoryDTO.Id);
 			if (subCategoryInDb != null)
 			{
-				throw new AppException("This sub-category is already exist");
+				throw new AppException("This subcategory is already exist");
 			}
 
 			var subcategory = _mapper.Map<Subcategory>(subcategoryDTO);
@@ -41,15 +46,15 @@ namespace Blazor.Server.Services
 			return _mapper.Map<SubcategoryDTO>(subcategory);
 		}
 
-		public async Task<bool> Delete(Guid subCategoryId)
+		public async Task<bool> Delete(Guid subcategoryId)
 		{
-			var subCategory = await _dbContext.Subcategories.FindAsync(subCategoryId);
-			if (subCategory == null)
+			var subcategory = await _dbContext.Subcategories.FindAsync(subcategoryId);
+			if (subcategory == null)
 			{
-				throw new AppException("Sub-category not found");
+				throw new AppException("Subcategory not found");
 			}
 
-			_dbContext.Subcategories.Remove(subCategory);
+			_dbContext.Subcategories.Remove(subcategory);
 			var result = await _dbContext.SaveChangesAsync();
 			return result > 0;
 		}
@@ -74,7 +79,7 @@ namespace Blazor.Server.Services
 
         public async Task<IEnumerable<SubcategoryDTO>> GetPromotions()
         {
-            return await _dbContext.Subcategories.Where(c => c.ActivePromotion == true).OrderBy(c => c.UpdatedAt).ProjectTo<SubcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+            return await _dbContext.Subcategories.Where(c => c.ActivePromotion == true).OrderByDescending(c => c.UpdatedAt).ProjectTo<SubcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         public async Task<IEnumerable<SubcategoryDTO>> Search(string input)
@@ -82,22 +87,89 @@ namespace Blazor.Server.Services
 			return await _dbContext.Subcategories.Include(c => c.Category).Where(c => c.Name.ToLower().Contains(input) || c.Category.Name.ToLower().Contains(input)).OrderByDescending(c => c.Name).ProjectTo<SubcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
 		}
 
-		public async Task<SubcategoryDTO> Update(SubcategoryDTO subCategoryDTO)
+		public async Task<SubcategoryDTO> Update(SubcategoryDTO subcategoryDTO)
 		{
-			var subCategory = await _dbContext.Subcategories.FindAsync(subCategoryDTO.Id);
-			if (subCategory == null)
+			var subcategory = await _dbContext.Subcategories.FindAsync(subcategoryDTO.Id);
+			if (subcategory == null)
 			{
-				throw new AppException("Sub-category not found");
+				throw new AppException("Subcategory not found");
 			}
 
-			subCategory.Name = subCategoryDTO.Name;
-			subCategory.UpdatedAt = DateTime.Now;
-			subCategory.ActivePromotion = subCategoryDTO.ActivePromotion;
-			subCategory.PromotionName = subCategoryDTO.PromotionName;
+			subcategory.Name = subcategoryDTO.Name;
+			subcategory.UpdatedAt = DateTime.Now;
+			subcategory.ActivePromotion = subcategoryDTO.ActivePromotion;
+			subcategory.PromotionName = subcategoryDTO.PromotionName;
+			subcategory.PromotionDiscount = subcategoryDTO.PromotionDiscount;
+			subcategory.PromotionDurationHour = subcategoryDTO.PromotionDurationHour;
+			subcategory.PromotionStartedAt = subcategoryDTO.PromotionStartedAt;
 
 			await _dbContext.SaveChangesAsync();
 
-			return _mapper.Map<SubcategoryDTO>(subCategory);
+			return _mapper.Map<SubcategoryDTO>(subcategory);
 		}
-	}
+		public async Task<bool> CheckPromotion()
+		{
+            var activePromotions = await _dbContext.Subcategories.Where(s => s.ActivePromotion == true).ToListAsync();
+            foreach (var activePromotion in activePromotions)
+            {
+                DateTime startTime = (DateTime)activePromotion.PromotionStartedAt;
+                DateTime endTime = startTime.AddHours((double)activePromotion.PromotionDurationHour);
+                if (DateTime.Now > endTime)
+                {
+                    activePromotion.ActivePromotion = false;
+                    activePromotion.PromotionName = null;
+                    activePromotion.PromotionDiscount = null;
+                    activePromotion.PromotionDurationHour = null;
+                    activePromotion.PromotionStartedAt = null;
+                }
+                await _dbContext.SaveChangesAsync();
+            }
+            return true;
+        }
+
+        public async Task<bool> StartPromotion(SaleDTO saleDTO)
+        {
+            var subcategory = await _dbContext.Subcategories.FirstOrDefaultAsync(s => s.Id == saleDTO.CategoryId);
+            if (subcategory.ActivePromotion)
+            {
+                return false;
+            }
+
+            subcategory.ActivePromotion = true;
+            subcategory.PromotionName = saleDTO.PromotionName;
+            subcategory.PromotionDiscount = saleDTO.Discount;
+            subcategory.PromotionDurationHour = saleDTO.Duration;
+            subcategory.PromotionStartedAt = DateTime.Now;
+            subcategory.UpdatedAt = DateTime.Now;
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> EndPromotion(Guid subcategoryId)
+        {
+            var subcategory = await _dbContext.Subcategories.FirstOrDefaultAsync(s => s.Id == subcategoryId);
+            if (subcategory is null)
+            {
+                return false;
+            }
+
+            subcategory.ActivePromotion = false;
+            subcategory.PromotionName = null;
+            subcategory.PromotionDiscount = null;
+            subcategory.PromotionDurationHour = null;
+            subcategory.PromotionStartedAt = null;
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<IEnumerable<SubcategoryDTO>> GetPromotions(int page)
+        {
+            int skip = (page - 1) * _size;
+            return await _dbContext.Subcategories.Where(s => s.ActivePromotion == true).OrderByDescending(p => p.UpdatedAt).Skip(skip).Take(_size).ProjectTo<SubcategoryDTO>(_mapper.ConfigurationProvider).ToListAsync();
+        }
+    }
 }
