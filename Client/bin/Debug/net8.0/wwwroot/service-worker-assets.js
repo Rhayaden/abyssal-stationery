@@ -877,15 +877,15 @@
       "url": "_framework\/Blazor.Shared.pdb"
     },
     {
-      "hash": "sha256-Umv3UEhox70I6s0kmnsTdRLo7jrb5OI5bslpObdlpFw=",
+      "hash": "sha256-CPB1trvtmMNgDFf8nX1wlFFNoiAFxmWF7clIGglcJhc=",
       "url": "_framework\/Blazor.Client.wasm"
     },
     {
-      "hash": "sha256-kEV2ubeZ1HSKsR6oIwaK0ZIcF2Z1lW0ISls8Fc0zHYA=",
+      "hash": "sha256-fM7OdK\/HkIp\/ft8n3d06vlKSTLYKRqmDzNsbgMcjgwU=",
       "url": "_framework\/Blazor.Client.pdb"
     },
     {
-      "hash": "sha256-x+EcrBW\/lamum+LJu3Od32U6HT2r+UIJ0LBkJ9hAZ0s=",
+      "hash": "sha256-7ZWldLTCfBfJ2L0I9kT6frrOo1nP29L9k0ZEcOjG77g=",
       "url": "_framework\/blazor.boot.json"
     },
     {
@@ -901,5 +901,5 @@
       "url": "_content\/Blazored.Modal\/Blazored.Modal.bundle.scp.css"
     }
   ],
-  "version": "p3bmqR4j"
+  "version": "J\/uv3f5d"
 };

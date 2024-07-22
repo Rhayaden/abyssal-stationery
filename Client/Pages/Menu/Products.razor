@@ -31,37 +31,9 @@
                         <button type="submit" class="text-white absolute end-2.5 bottom-2.5 bg-indigo-600 hover:bg-indigo-500 focus:outline-none font-medium rounded-lg text-sm px-4 py-2">Search</button>
                     </div>
                 </form>
-                <div class="relative w-11/12 h-10 min-w-[200px]">
-                    <select @onchange="HandleSelectionChange" class="peer h-full w-full rounded-lg border border-indigo-gray-200 border-t-transparent bg-transparent px-3 py-1 font-sans text-indigo-gray-800 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-indigo-gray-200 placeholder-shown:border-t-indigo-gray-200 empty:!bg-gray-900 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-indigo-gray-50">
-                        <option selected disabled>Select Category</option>
-                        <option value="">All Categories</option>
-                        @foreach (var category in categories)
-                        {
-                            <hr />
-                            <option value="@category.Id" class="text-lg font-bold">@category.Name</option>
-                            @foreach (var subcategory in category.Subcategories)
-                            {
-                                @if (category.Name != subcategory.Name)
-                                {
-                                    <option value="@subcategory.Id" class="text-base font-semibold">&nbsp;&nbsp;@subcategory.Name</option>
-                                }
-                                @foreach (var subSubcategory in subcategory.Subsubcategories)
-                                {
-                                    @if (subcategory.Name != subSubcategory.Name)
-                                    {
-                                        <option value="@subSubcategory.Id" class="text-base">&nbsp;&nbsp;&nbsp;&nbsp;@subSubcategory.Name</option>
-                                    }
-                                }
-                            }
-                        }
-                    </select>
-                        <label class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-medium leading-tight text-indigo-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-indigo-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-indigo-gray-200 after:transition-all peer-placeholder-shown:text-md peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-indigo-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-indigo-gray-500">
-                            Select by Category
-                        </label>
-                </div>
                 @if (isActivePromotion)
                 {
-                    @foreach(var activePromotion in activePromotions)
+                    @foreach (var activePromotion in activePromotions)
                     {
                         <button @onclick="()=>GetPromotionsHandler(activePromotion.Id)"
                                 class="w-3/4 items-center py-2 my-2 font-semibold text-rose-600 rounded-lg outline hover:text-white hover:bg-rose-500">
@@ -69,6 +41,44 @@
                         </button>
                     }
                 }
+                <div>
+                    @foreach (var category in categories)
+                    {
+                        <button @onclick="()=>ClickCategoryHandler(category.Id)" class="inline-flex w-full gap-x-1.5 rounded-md bg-white px-2 py-2 text-sm font-semibold text-indigo-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            @category.Name
+                            <svg class="-mr-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        @if (clickedCategoryId == category.Id)
+                        {
+                            @foreach (var subcategory in category.Subcategories)
+                            {
+                                <button @onclick="()=>ClickSubcategoryHandler(subcategory.Id)" class="inline-flex w-full gap-x-1.5 rounded-md bg-white px-2 py-2 pl-4 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-gray-50">
+                                    @subcategory.Name
+                                    @if(subcategory.Subsubcategories.Count() > 1)
+                                    {
+                                        <svg class="-mr-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                        </svg>
+                                    }
+                                </button>
+                                @if (clickedSubcategoryId == subcategory.Id)
+                                {
+                                    @foreach (var subsubcategory in subcategory.Subsubcategories)
+                                    {
+                                        if(subcategory.Name != subsubcategory.Name)
+                                        {
+                                            <button @onclick="()=>ClickSubsubcategoryHandler(subsubcategory.Id)" class="inline-flex w-full gap-x-1.5 rounded-md bg-white px-2 py-2 pl-8 text-sm font-semibold text-indigo-600 shadow-sm hover:bg-gray-50">
+                                                @subsubcategory.Name
+                                            </button>
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                </div>
             </nav>
         </div>
     </div>
@@ -227,6 +237,9 @@
     private int productCount { get; set; }
 
     private Guid selectedCategoryId { get; set; }
+
+    private Guid clickedCategoryId { get; set; }
+    private Guid clickedSubcategoryId { get; set; }
 
     private bool isSearched { get; set; }
 
@@ -464,5 +477,42 @@
             productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subsubcategory/{selectedCategoryId}/{Page}");
             productCount = await Client.GetServiceResponseAsync<int>($"api/Product/CountBy/Sub_subcategory/{selectedCategoryId}");
         }
+    }
+
+    private async Task ClickCategoryHandler(Guid id)
+    {
+        if(clickedCategoryId == id)
+        {
+            clickedCategoryId = Guid.Empty;
+            return;
+        }
+        isSearched = true;
+        SortingText = "Latest";
+        searchCategory = string.Empty;
+        clickedCategoryId = id;
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/MainCategory/{clickedCategoryId}/{Page}");
+        productCount = await Client.GetServiceResponseAsync<int>($"api/Product/CountBy/MainCategory/{clickedCategoryId}");
+    }
+    private async Task ClickSubcategoryHandler(Guid id)
+    {
+        if (clickedSubcategoryId == id)
+        {
+            clickedSubcategoryId = Guid.Empty;
+            return;
+        }
+        isSearched = true;
+        SortingText = "Latest";
+        searchCategory = string.Empty;
+        clickedSubcategoryId = id;
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subcategory/{id}/{Page}");
+        productCount = await Client.GetServiceResponseAsync<int>($"api/Product/CountBy/Subcategory/{id}");
+    }
+    private async Task ClickSubsubcategoryHandler(Guid id)
+    {
+        isSearched = true;
+        SortingText = "Latest";
+        searchCategory = string.Empty;
+        productList = await Client.GetServiceResponseAsync<IEnumerable<ProductDTO>>($"api/Product/Get/Subsubcategory/{id}/{Page}");
+        productCount = await Client.GetServiceResponseAsync<int>($"api/Product/CountBy/Sub_subcategory/{id}");
     }
 }

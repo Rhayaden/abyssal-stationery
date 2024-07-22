@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "Blazor.Client",
   "resources": {
-    "hash": "sha256-NZOWSEZK0/F1cxP8ZX0c4JB4fm+evZvZ7eHQTVAVGyM=",
+    "hash": "sha256-311WqGXbmrlno1+eYY55mDBWstLy6B2yirSvSMqT9bQ=",
     "jsModuleNative": {
       "dotnet.native.8.0.2.mgefbnju0b.js": "sha256-gPMK16QWoJSTxorlZJqcVtbBRTniIQWlLsJN2O4cJHg="
     },
@@ -217,11 +217,11 @@
       "netstandard.wasm": "sha256-ZOswxXEbR2TmqjpbaBEdgr85Bv1NC4GwOwoJ+oxXM3M=",
       "System.Private.CoreLib.wasm": "sha256-I2w0iHf5nvSQyF1YE1VbgdTzmmz6a4OE6J7vo5wFa/4=",
       "Blazor.Shared.wasm": "sha256-etRt4i/hxK9KUsedbkN3LVoICP79DAENhfUN5dXMAb4=",
-      "Blazor.Client.wasm": "sha256-I/Dl7uo+Max9yZa3oDOlhbZWIn3NTTNMrjUCPyvGHQw="
+      "Blazor.Client.wasm": "sha256-1vLo67GR2mVMuGog8chxPsiFusfTjJXGttI2C3OkQWs="
     },
     "pdb": {
       "Blazor.Shared.pdb": "sha256-wZoDIwqnthBmZs46BRQ34RBLAg+Igzn60C+ZZ7pk+GM=",
-      "Blazor.Client.pdb": "sha256-yb9+Q0sDPARFhvMD752oJ5xnVEVYdI73FdQFSH5l7pI="
+      "Blazor.Client.pdb": "sha256-knKCyOFuRtcVDgTJC7Tj7Ne+x6L8SOCKBX7dF5EclJs="
     }
   },
   "cacheBootResources": true,
